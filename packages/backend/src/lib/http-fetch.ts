@@ -24,13 +24,13 @@ let directAgent: Agent | null = null;
 let resolveEgress: ReturnType<typeof createEgressResolver> | null = null;
 
 function egressResolver() {
-  return resolveEgress ??= createEgressResolver(config.egressProxyUrl!);
+  return resolveEgress ??= createEgressResolver(config.egressProxyUrl!, process.env.EGRESS_DNS_ENDPOINT);
 }
 
 function proxied(url: URL, route: EgressRoute): boolean {
   if (route !== "egress" || !config.egressProxyUrl) return false;
   const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
-  return net.isIP(host) === 0 && !host.endsWith(".cn") && !host.endsWith(".local") && !DEPLOYMENT.directFetchHosts.includes(host);
+  return net.isIP(host) === 0 && (DEPLOYMENT.proxyFetchHosts.includes(host) || (!host.endsWith(".cn") && !host.endsWith(".local"))) && !DEPLOYMENT.directFetchHosts.includes(host);
 }
 
 function dispatcherFor(viaProxy: boolean): Dispatcher | undefined {

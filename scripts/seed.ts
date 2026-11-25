@@ -1,3 +1,4 @@
+import { WORKFLOW } from "@aihot/site/workflow";
 // Seeds a fresh site from the industry pack: the demo sources (industry/sources.json, only the ones not
 // there yet, so admin edits are never undone). Topics need no seeding: they are read from industry/topics.json.
 // Re-runnable:  node --env-file=.env scripts/seed.ts
@@ -37,4 +38,7 @@ for (const s of sources) {
   added += inserted.length;
 }
 console.log(`sources: ${added} added, ${sources.length - added} already there`);
+// Keep the real provider visible in admin budget controls; lower operator caps remain lower.
+if (WORKFLOW.models) await sql`INSERT INTO budgets (service,per_minute,per_hour,per_day) VALUES ('llm',13,13,13)
+ ON CONFLICT(service) DO UPDATE SET per_day=LEAST(budgets.per_day,13)`;
 await closeDb();

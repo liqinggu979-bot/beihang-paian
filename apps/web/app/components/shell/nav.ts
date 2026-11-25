@@ -1,5 +1,6 @@
 // Site navigation in one place: the desktop sidebar's sections and the phone tab bar's tabs, the engine's
 // and the site's modules'.
+import { WORKFLOW } from "@aihot/site/workflow";
 import type { ReactNode } from "react";
 import { subjectAfter, withSubject } from "@aihot/site";
 import { webModules } from "../../site-modules";
@@ -47,7 +48,7 @@ const SECTIONS: Array<{ title: string; items: NavItem[] }> = [
 export function sidebar(): Array<{ title: string; items: NavItem[] }> {
   const [content, ...rest] = SECTIONS;
   const more = rest.pop()!;
-  const sections = [content!, ...rest].map((s) => ({ ...s, items: [...s.items] }));
+  const sections = [content!, ...rest].map((s) => ({ ...s, items: s.items.filter((item) => WORKFLOW.reportsEnabled || item.to !== "/daily") }));
   for (const m of webModules()) {
     if (!m.sidebar) continue;
     const section = sections.find((s) => s.title === m.sidebar!.section);
@@ -94,5 +95,5 @@ const ENGINE_TABS: Tab[] = [
 
 /** The tab bar: the engine's, the modules' before 我的. */
 export function tabs(): Tab[] {
-  return [...ENGINE_TABS.slice(0, -1), ...webModules().flatMap((m) => m.tabs ?? []), ENGINE_TABS.at(-1)!];
+  return [...ENGINE_TABS.slice(0, -1).filter((tab) => WORKFLOW.reportsEnabled || tab.key !== "daily"), ...webModules().flatMap((m) => m.tabs ?? []), ENGINE_TABS.at(-1)!];
 }

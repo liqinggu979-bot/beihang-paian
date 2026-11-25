@@ -48,6 +48,8 @@ export interface MaterialInput {
   /** How it arrived: the engine's collection, the ingest API or an import, or the module that brought it (its name). */
   via: "fetch" | "ingest" | "import" | (string & {});
   discoveredAt?: Date;
+  /** Trusted collector watermark, never accepted from the public ingest body. */
+  observedAfter?: Date | null;
   /** Explicit backfill: first import of a new source, or a report flagged as backfill. */
   backfill?: string | null;
   /** Keep an existing id when importing history. */
@@ -77,13 +79,13 @@ export interface TimelineDecision {
 }
 
 /** The one timeline rule shared by every entrance. */
-export function decideTimeline(claimed: Date | null | undefined, discoveredAt: Date, explicitBackfill?: string | null): TimelineDecision {
+export function decideTimeline(claimed: Date | null | undefined, discoveredAt: Date, explicitBackfill?: string | null, observedAfter?: Date | null): TimelineDecision {
   let publishedAt: Date | null = claimed && Number.isFinite(claimed.getTime()) ? claimed : null;
   if (publishedAt && publishedAt.getTime() > discoveredAt.getTime() + FUTURE_TOLERANCE_MS) publishedAt = null;
   let backfillReason: string | null = null;
   if (explicitBackfill) backfillReason = explicitBackfill;
   else if (!publishedAt) backfillReason = "unknown-publication-time";
-  else if (publishedAt && discoveredAt.getTime() - publishedAt.getTime() > STALE_ON_DISCOVERY_MS) backfillReason = "stale-on-discovery";
+  else if (publishedAt && !(observedAfter && Number.isFinite(observedAfter.getTime()) && observedAfter <= discoveredAt && publishedAt > observedAfter) && discoveredAt.getTime() - publishedAt.getTime() > STALE_ON_DISCOVERY_MS) backfillReason = "stale-on-discovery";
   const backfill = backfillReason !== null;
   const timelineAt = backfill && publishedAt ? publishedAt : discoveredAt;
   return { publishedAt, timelineAt, backfill, backfillReason };
@@ -96,11 +98,11 @@ export function decideTimeline(claimed: Date | null | undefined, discoveredAt: D
  */
 export async function fillPublicationTime(db: Db, articleId: string, claimed: Date | null | undefined): Promise<TimelineDecision | null> {
   if (!claimed || !Number.isFinite(claimed.getTime())) return null;
-  const [a] = await db<{ published_at: Date | null; discovered_at: Date; backfill_reason: string | null }[]>`
-    SELECT published_at, discovered_at, backfill_reason FROM articles WHERE id = ${articleId}`;
+  const [a] = await db<{ published_at: Date | null; discovered_at: Date; backfill_reason: string | null; raw: { collectionObservedAfter?: string } | null }[]>`
+    SELECT published_at, discovered_at, backfill_reason, raw FROM articles WHERE id = ${articleId}`;
   if (!a || a.published_at) return null;
   const explicit = a.backfill_reason === "unknown-publication-time" ? null : a.backfill_reason;
-  const next = decideTimeline(claimed, a.discovered_at, explicit);
+  const next = decideTimeline(claimed, a.discovered_at, explicit, a.raw?.collectionObservedAfter ? new Date(a.raw.collectionObservedAfter) : null);
   if (!next.publishedAt) return null;
   await db`UPDATE articles SET published_at = ${next.publishedAt}, published_at_claim = ${claimed},
     timeline_at = ${next.timelineAt}, backfill = ${next.backfill}, backfill_reason = ${next.backfillReason} WHERE id = ${articleId}`;
@@ -166,11 +168,12 @@ async function upsertIn(db: Db, m: MaterialInput): Promise<MaterialResult> {
     publishedAt: m.publishedAt && Number.isFinite(m.publishedAt.getTime()) ? m.publishedAt : null,
     sourceUpdatedAt: m.sourceUpdatedAt && Number.isFinite(m.sourceUpdatedAt.getTime()) ? m.sourceUpdatedAt : null,
   };
+  if (m.observedAfter && Number.isFinite(m.observedAfter.getTime())) m.raw = { ...(m.raw && typeof m.raw === "object" ? m.raw : {}), collectionObservedAfter: m.observedAfter.toISOString() };
   const identityKey = identityKeyFor(m);
   const discoveredAt = m.discoveredAt ?? new Date();
   const title = collapseWhitespace(m.title).slice(0, 1000) || m.url;
 
-  const t = decideTimeline(m.publishedAt, discoveredAt, m.backfill);
+  const t = decideTimeline(m.publishedAt, discoveredAt, m.backfill, m.observedAfter);
   // Most listing entries are already stored. Lock and reuse those rows without attempting an
   // insert of their body and raw payload on every collection. The unique key still arbitrates
   // concurrent first discoveries; after losing that insert, read and lock its winner.

@@ -1,3 +1,4 @@
+import { UPSTREAM_WORKFLOW } from "@aihot/site/workflow";
 import { gate, stub, tag } from './setup.ts';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -20,11 +21,12 @@ const provider = await stub(async (_hit, req) => {
 
 function runTranslation() {
   const script = `
+    import { UPSTREAM_WORKFLOW } from '@aihot/site/workflow';
     import { translatePending } from '@aihot/backend/editorial/translate';
     import { shutdownSignal } from '@aihot/backend/jobs/queue';
     import { closeDb } from '@aihot/backend/db';
     process.on('SIGTERM', () => { shutdownSignal.abort(); process.send({ stopped: true }); });
-    try { process.send({ result: await translatePending({ limit: 1 }) }); }
+    try { process.send({ result: await translatePending({ limit: 1, policy: UPSTREAM_WORKFLOW }) }); }
     finally { await closeDb(); process.disconnect(); }
   `;
   const child = spawn(process.execPath, ['--input-type=module', '-e', script], {
@@ -55,7 +57,7 @@ for (const misaligned of [false, true]) test(`SIGTERM finishes the sent ${misali
   const second = misaligned ? `Second paragraph ${T}.` : `Second paragraph ${T}. ${'More English '.repeat(170)}`;
   const { articleId } = await upsertMaterial({ sourceId: SOURCE, url: `https://example.org/translation-shutdown-${T}/${misaligned}`, title: `Shutdown ${T}`, bodyHtml: `<p>${first}</p><p>${second}</p>`, bodyText: first + second, bodyStatus: 'ok', language: 'en', via: 'fetch', publishedAt: new Date(), discoveredAt: new Date(Date.now() + 86_400_000) });
   await sql`INSERT INTO analyses (article_id,input_revision,origin,relevance,category,title_zh,summary_zh,reason_zh,score,selected)
-    VALUES (${articleId},1,'rule','pass','ai-models',${`终止测试${T}`},'摘要','理由',90,true)`;
+    VALUES (${articleId},1,'rule','pass','campus',${`终止测试${T}`},'摘要','理由',90,true)`;
   await publishArticle(articleId, { releasedAt: new Date(Date.now() - 60_000) });
   const interrupted = runTranslation();
   await Promise.race([active.asked.promise, interrupted.done.then(() => assert.fail('translation ended before a request'))]);

@@ -1,3 +1,5 @@
+import { config } from "../config.ts";
+import { WORKFLOW } from "@aihot/site/workflow";
 // Paid requests (models, SocialData, Jina; historical Dajiala records retained) go through here.
 //
 // 1. A logical request has a stable key bound to task, input revision, provider, model, prompt and config.
@@ -61,6 +63,9 @@ export interface CallOutcome {
 }
 
 export interface ReceiptRequest {
+  /** Non-relaxable monetary request cap computed from enforced model bounds. */
+  dailyLimit?: number;
+  billing?: "subscription";
   service: string;
   model?: string | null;
   purpose: string;
@@ -94,10 +99,11 @@ interface ReceiptRow {
   updated_at: Date;
 }
 
-async function checkBudget(tx: Db, service: string): Promise<void> {
+async function checkBudget(tx: Db, req: ReceiptRequest): Promise<void> {
+  const { service, dailyLimit } = req;
   const [budget] = await tx<{ per_minute: number; per_hour: number; per_day: number }[]>`
     SELECT per_minute, per_hour, per_day FROM budgets WHERE service = ${service}`;
-  if (!budget) return; // default rows come with the migrations; a service an operator removed is unlimited
+  if (!budget && dailyLimit === undefined) return; // default rows come with the migrations; a service an operator removed is unlimited
   // Every request sent counts, retries of the same logical request included.
   const [counts] = await tx<{ minute: number; hour: number; day: number }[]>`
     SELECT
@@ -107,12 +113,12 @@ async function checkBudget(tx: Db, service: string): Promise<void> {
     FROM receipt_attempts
     WHERE service = ${service} AND origin = 'live' AND started_at > now() - interval '1 day'`;
   const c = counts!;
-  if (budget.per_minute <= 0 || budget.per_hour <= 0 || budget.per_day <= 0) {
+  if (budget && (budget.per_minute <= 0 || budget.per_hour <= 0 || budget.per_day <= 0)) {
     throw new BudgetExceededError(service, "stopped", 3600);
   }
-  if (c.minute >= budget.per_minute) throw new BudgetExceededError(service, "minute", 60);
-  if (c.hour >= budget.per_hour) throw new BudgetExceededError(service, "hour", 600);
-  if (c.day >= budget.per_day) throw new BudgetExceededError(service, "day", 3600);
+  if (budget && c.minute >= budget.per_minute) throw new BudgetExceededError(service, "minute", 60);
+  if (budget && c.hour >= budget.per_hour) throw new BudgetExceededError(service, "hour", 600);
+  if (c.day >= Math.min(budget?.per_day ?? Infinity, dailyLimit ?? Infinity)) throw new BudgetExceededError(service, "day", 3600);
 }
 
 /**
@@ -120,6 +126,12 @@ async function checkBudget(tx: Db, service: string): Promise<void> {
  * The caller parses the response and commits business results, then calls completeReceipt.
  */
 export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallOutcome>): Promise<ReceiptResult> {
+  if (WORKFLOW.models && process.env.NODE_ENV === "production") {
+    const allowed = process.env.LLM_PROVIDER === "chatgpt_subscription"
+      ? req.billing === "subscription" && req.service === "chatgpt_subscription" && req.dailyLimit === config.chatgptDailyRequestLimit
+      : req.service === "llm" && req.dailyLimit !== undefined;
+    if (!allowed) throw new BudgetExceededError(req.service, "stopped", 86400);
+  }
   const logicalKey = logicalKeyFor(req);
 
   const claimed = await sql.begin(async (tx) => {
@@ -139,13 +151,13 @@ export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallO
       }
       if (existing.status === "unknown") return { kind: "unknown" as const, row: existing };
       // failed: the provider did not take the request, or its answer was unusable; a new attempt is allowed.
-      await checkBudget(tx, req.service);
+      await checkBudget(tx, req);
       const [r] = await tx<{ attempts: number }[]>`
         UPDATE receipts SET status = 'pending', attempts = attempts + 1, error = NULL, updated_at = now() WHERE id = ${existing.id} RETURNING attempts`;
       const attemptId = await startAttempt(tx, existing.id, r!.attempts, req);
       return { kind: "call" as const, id: existing.id, attemptId };
     }
-    await checkBudget(tx, req.service);
+    await checkBudget(tx, req);
     const [row] = await tx<{ id: number }[]>`
       INSERT INTO receipts (logical_key, service, model, purpose, subject, status, request, attempts)
       VALUES (${logicalKey}, ${req.service}, ${req.model ?? null}, ${req.purpose}, ${req.subject ?? null}, 'pending',
@@ -167,7 +179,7 @@ export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallO
   try {
     outcome = await call();
   } catch (error) {
-    const status = error instanceof ProviderRejectedError ? "failed" : "unknown";
+    const status = error instanceof ProviderRejectedError || error instanceof BudgetExceededError ? "failed" : "unknown";
     // "unknown": the request may have reached the provider (timeout, reset): do not re-send automatically.
     const message = (error instanceof ProviderRejectedError ? error.message : String(error)).slice(0, 2000);
     await sql.begin(async (tx) => {

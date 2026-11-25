@@ -1,3 +1,5 @@
+import { WORKFLOW } from "@aihot/site/workflow";
+import { config } from "../config.ts";
 // Content processing: body extraction when the source needs it → analysis → publish → event grouping.
 // Every article reaches the queues through queueProcessing, which records when it was queued. A failed
 // step records when to try again, and the sweep (content.sweep) is the timer that queues it then; it
@@ -44,7 +46,7 @@ async function route(articleId: string, db: Db): Promise<Route | null> {
            a.backfill, a.published_at, a.discovered_at
     FROM articles a JOIN sources s ON s.id = a.source_id WHERE a.id = ${articleId}`;
   if (!row) return null;
-  const historical = isHistorical(row);
+  const historical = (WORKFLOW.collection !== null && row.backfill) || isHistorical(row);
   const signal = row.participation_mode !== "editorial";
   const pending = row.body_status === "pending";
   const wantsBody = row.config.fetchPublicContent === true || !!row.config.detail || row.kind === "web_list";
@@ -70,6 +72,7 @@ export async function queueProcessing(articleId: string, opts: { step?: Step; at
   const r = await route(articleId, db);
   if (!r) return null;
   const step = opts.step ?? r.step;
+  if (step === "analyze" && !config.modelCallsEnabled) return null;
   const [queued] = await db<{ processing_attempt_tag: string | null }[]>`
     UPDATE articles SET processing_queued_at = now(), processing_attempt_tag = coalesce(${opts.attemptTag ?? null}, processing_attempt_tag)
     WHERE id = ${articleId} RETURNING processing_attempt_tag`;
@@ -102,7 +105,7 @@ export async function settleNonEditorial(articleId: string): Promise<{ group: bo
 async function processingInput(articleId: string) {
   const [row] = await sql<{ participation_mode: string; revision: number; backfill: boolean; published_at: Date | null; discovered_at: Date }[]>`
     SELECT s.participation_mode, a.revision, a.backfill, a.published_at, a.discovered_at FROM articles a JOIN sources s ON s.id = a.source_id WHERE a.id = ${articleId}`;
-  return row ? { ...row, historical: isHistorical(row) } : null;
+  return row ? { ...row, historical: (WORKFLOW.collection !== null && row.backfill) || isHistorical(row) } : null;
 }
 
 /**
@@ -185,7 +188,7 @@ async function afterFailure(articleId: string, revision: number, error: unknown)
 }
 
 export async function registerContentJobs(boss: PgBoss) {
-  await work(boss, QUEUES.analyze, { localConcurrency: 6, pollingIntervalSeconds: 2 }, ({ articleId, attemptTag }) => processArticle(articleId, { attemptTag }));
+  await work(boss, QUEUES.analyze, { localConcurrency: WORKFLOW.models ? 1 : 6, pollingIntervalSeconds: 2 }, ({ articleId, attemptTag }) => processArticle(articleId, { attemptTag }));
 }
 
 /**

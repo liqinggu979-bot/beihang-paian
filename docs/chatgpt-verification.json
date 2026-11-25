@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-10-08",
+  "backendTests": {
+    "passed": 667,
+    "failed": 0
+  },
+  "webTests": {
+    "passed": 42,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "build": "passed",
+  "smoke": "passed",
+  "mcp": "passed",
+  "localAuthorizationForm": "official_redirect_verified",
+  "foreignOrigin": "rejected_403",
+  "credentials": "not_connected",
+  "realSubscriptionInference": "not_verified",
+  "remaining": "User must complete official authorization and choose an available model before live inference can be verified.",
+  "subscriptionTransport": "installed Undici fetch + matching ProxyAgent",
+  "proxyProbe": {
+    "openid": 200,
+    "jwks": 200,
+    "publicKeyCount": 4,
+    "apiWithoutCredentials": 401
+  },
+  "failureDiagnosed": "Node bundled fetch and installed Undici ProxyAgent incompatible (invalid onRequestStart method), fixed"
+}

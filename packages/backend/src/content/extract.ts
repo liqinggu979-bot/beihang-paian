@@ -79,14 +79,14 @@ export function readable(html: string, url: string, utcOffset?: string): Extract
   return { html: clean, text, images, via: "readability", publishedAt: parseLooseDate(article.publishedTime, utcOffset) };
 }
 
-export async function extractFromUrl(url: string, subject: string, utcOffset?: string): Promise<ExtractedBody | null> {
+export async function extractFromUrl(url: string, subject: string, utcOffset?: string, bodySelector?: string): Promise<ExtractedBody | null> {
   if (isVideoPageUrl(url)) return null;
   try {
     const res = await guardedFetch(url, { timeoutMs: 20_000, maxBytes: 6 * 1024 * 1024 });
     if (isVideoPageUrl(res.url)) return null;
     const type = res.headers.get("content-type") ?? "";
     if (res.status === 200 && /html/.test(type)) {
-      const got = readable(res.text(), res.url, utcOffset);
+      const got = bodySelector ? selectedBody(res.text(), res.url, bodySelector) : readable(res.text(), res.url, utcOffset);
       if (got) return got;
     }
   } catch {
@@ -122,7 +122,7 @@ export async function extractArticleBody(articleId: string): Promise<"ok" | "unc
     FROM articles a JOIN sources s ON s.id = a.source_id WHERE a.id = ${articleId}`;
   if (!a || a.body_status === "ok") return "skipped";
   if (a.x_post?.tweetId) return extractXArticle(a.id, a.x_post.tweetId, a.revision);
-  const got = await extractFromUrl(a.url, `article:${a.id}`, articleUtcOffset(a.config));
+  const got = await extractFromUrl(a.url, `article:${a.id}`, articleUtcOffset(a.config), a.config.detail?.bodySelector);
   if (!got) {
     return markUnconfirmed(articleId, a.revision);
   }
@@ -189,4 +189,15 @@ async function extractXArticle(articleId: string, tweetId: string, revision: num
     });
     return "ok";
   });
+}
+
+/** An explicit publisher content selector also supports short but useful campus notices. */
+export function selectedBody(html: string, url: string, selector: string): ExtractedBody | null {
+  const { document } = parseHTML(html);
+  const element = document.querySelector(selector);
+  if (!element) return null;
+  const clean = sanitizeBody(element.innerHTML, url);
+  const text = stripTags(clean);
+  if (text.trim().length < 20) return null;
+  return { html: clean, text, images: [], via: "readability", publishedAt: null };
 }

@@ -1,3 +1,4 @@
+import { WORKFLOW } from "@aihot/site/workflow";
 // What AI agents read: the Markdown served under /api/v1/agent and the text of the MCP tools, one per
 // ability. Agents only fetch these addresses and relay what comes back, so which data answers a
 // question, how it reads and what to tell the user are decided here, on the server. Programs keep
@@ -88,7 +89,7 @@ export function searchAnswer(found: { res: V1ItemsResult; expanded: boolean }, q
   if (!res.items.length) {
     return answer([`# ${title}`, "", `${WINDOW_ZH[q.window]}的精选和全部公开动态里都没有相关报道。`], null, [
       `如实告诉用户 ${SITE.name} ${WINDOW_ZH[q.window]}没有这方面的报道${q.window === "24h" ? "（可以用 window=7d 看最近一周）" : "；更早的内容这里查不到"}。`,
-      "可以换个说法或更短的关键词再查一次（比如只用公司或产品名）。",
+      "可以换个说法或更短的关键词再查一次（比如只用机构、赛事或项目名）。",
       "不要用训练记忆冒充最新消息。",
     ]);
   }
@@ -269,7 +270,7 @@ export function agentGuide(): string {
   const lines = [
     `# ${SITE.name} 使用说明（给 Agent）`,
     "",
-    `${SITE.name}（${siteUrl("")}）是${subjectAfter("中文", "资讯站")}：编辑精选、全部公开动态、热点事件、日报、周报、月报`
+    `${SITE.name}（${siteUrl("")}）是${subjectAfter("中文", "资讯站")}：编辑精选、全部公开动态、热点事件${WORKFLOW.reportsEnabled ? "、日报、周报、月报" : "；每 48 小时检查一次，无最低条数"}`
       + (abilities.length ? `，以及 ${abilities.map((a) => a.title).join("、")}` : "")
       + `。下面的地址都是匿名只读的 GET，不需要 API Key；返回整理好的中文 Markdown，末尾的「回答提示」说明怎么讲给用户。这份说明由 ${SITE.name} 维护，新能力会先加在这里，以它为准。`,
     "",
@@ -282,7 +283,7 @@ export function agentGuide(): string {
     `| 只看某一类 | 加 category=${categories.slice(0, -1).join("、")}或 ${categories.at(-1)} |`,
     "| 全部公开动态，不只精选 | 加 mode=all |",
     "| 多看几条 | 加 limit=20（1–30，默认 10） |",
-    `| 某家公司、产品、模型、人物或话题 | ${u("/search?q=关键词")}（最近 7 天；只看今天加 window=24h） |`,
+    `| 校园、竞赛、科研、人物或话题 | ${u("/search?q=关键词")}（最近 7 天；只看今天加 window=24h） |`,
     `| 现在最热、大家在讨论什么 | ${u("/hot")} |`,
     "| 某个热点的来龙去脉、后续进展 | 热点结果里每个事件的「来龙去脉」地址 |",
     `| ${SITE.name} 日报 | ${u("/daily")}（最新一期）；指定日期：${u("/daily/2026-09-30")} |`,
@@ -319,5 +320,5 @@ export function agentGuide(): string {
     "",
     `${POLICY.terms.license?.agent ?? ""}完整规则见 ${siteUrl("/terms")} ${SITE.contactEmail ? `，授权联系 ${SITE.contactEmail} ` : ""}。`,
   ];
-  return `${lines.join("\n")}\n`;
+  return `${lines.filter((line) => WORKFLOW.reportsEnabled || !/日报|周报|月报/.test(line)).join("\n")}\n`;
 }

@@ -1,3 +1,5 @@
+import { ReferenceList } from "../features/feed/CheckNotice";
+import type { ReferenceEntry } from "@aihot/contracts/site";
 import { REPORTS, SITE } from "@aihot/site";
 import { Link, redirect, useLoaderData } from "react-router";
 import type { Route } from "./+types/topic";
@@ -27,7 +29,10 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   // Page 1 lives at the topic's own address (308).
   if (params.page === "1") throw redirect(`/topics/${params.slug}`, 308);
   const data = await loadOr404<TopicPage>(`/api/site/topics/${encodeURIComponent(params.slug)}?page=${page}`, { signal: request.signal });
-  return cachedPage(60, { data });
+  const tags: Record<string, string> = { "campus-changes": "校园变迁", "leadership-changes": "领导变化", "competitions": "竞赛记录", "research-progress": "科研进展", xueyuanlu: "学院路校区", shahe: "沙河校区", fengrubei: "冯如杯", "challenge-cup": "挑战杯" };
+  const tag = tags[params.slug];
+  const references = tag ? await loadOr404<ReferenceEntry[]>(`/api/site/references?tag=${encodeURIComponent(tag)}`, { signal: request.signal }) : [];
+  return cachedPage(60, { data, references });
 }
 
 const PARTS = await loadParts((m) => m.topicPage);
@@ -83,7 +88,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export default function TopicRoute() {
-  const { data } = useLoaderData<typeof loader>();
+  const { data, references } = useLoaderData<typeof loader>();
   const { topic, items, page, pageCount, pageSize } = data;
   const parts = partsOf(data);
   const href = (p: number) => (p <= 1 ? `/topics/${topic.slug}` : `/topics/${topic.slug}/page/${p}`);
@@ -127,6 +132,7 @@ export default function TopicRoute() {
         </div>
       </header>
 
+      {page === 1 && <ReferenceList entries={references} />}
       {parts.map((p) => (
         <div key={`${p.key}:${topic.slug}`} className="mb-8">
           <p.Block data={p.data} topic={topic} />
@@ -136,7 +142,7 @@ export default function TopicRoute() {
       <h2 className="sr-only">{page === 1 ? `${topic.name}的精选` : `精选归档 · 第 ${page} 页`}</h2>
       {items.length === 0 ? (
         <div className="lg:card">
-          <EmptyState title="这个主题暂时还没有精选内容" />
+          <EmptyState title="这个主题暂时还没有模型精选" />
         </div>
       ) : (
         <DayList items={items} headerAside={<span className="num whitespace-nowrap">第 {first}–{last} 条<span className="hidden sm:inline"> · 共 {topic.total.toLocaleString("zh-CN")} 条</span></span>} />

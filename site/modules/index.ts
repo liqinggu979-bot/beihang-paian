@@ -3,4 +3,4 @@
 // pages' parts. Each list keeps the order its entries appear in on the site.
 import type { ModuleDeclaration } from "@aihot/contracts/modules";
 
-export const MODULES: readonly ModuleDeclaration[] = [];
+export const MODULES: readonly ModuleDeclaration[] = [{ name: "beihang-evaluation" }];

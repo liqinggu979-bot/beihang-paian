@@ -1,3 +1,5 @@
+import { CheckNotice, ReferenceList } from "../features/feed/CheckNotice";
+import type { CheckStatus, ReferenceEntry } from "@aihot/contracts/site";
 import { redirect, useLoaderData } from "react-router";
 import type { Route } from "./+types/home";
 import type { TimelineResponse } from "@aihot/contracts/site";
@@ -21,7 +23,11 @@ export async function loader({ request }: Route.LoaderArgs) {
   const filters = readFilters(url.searchParams);
   const upstream = new Headers();
   const data = await loadOr404<TimelineResponse>(listPath("/api/site/timeline", filterParams(filters)), { responseHeaders: upstream, signal: request.signal });
-  return cachedPage(60, { data, filters }, upstream);
+  const [status, references] = await Promise.all([
+    loadOr404<CheckStatus>("/api/site/checks", { signal: request.signal }),
+    loadOr404<ReferenceEntry[]>("/api/site/references", { signal: request.signal }),
+  ]);
+  return cachedPage(60, { data, filters, status, references }, upstream);
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -31,7 +37,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const { data, filters } = useLoaderData<typeof loader>();
+  const { data, filters, status, references } = useLoaderData<typeof loader>();
   const title = filters.tag ? `#${filters.tag}` : "精选";
   return (
     <div className="pb-6">
@@ -46,9 +52,11 @@ export default function Home() {
         </div>
       </div>
 
+      <CheckNotice status={status} />
       {data.hot && <HotTopics entries={data.hot} />}
 
       <Timeline initial={data} filters={data.filters} />
+      <ReferenceList entries={references.slice(0, 12)} />
     </div>
   );
 }

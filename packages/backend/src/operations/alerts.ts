@@ -1,3 +1,4 @@
+import { WORKFLOW, type WorkflowPolicy } from "@aihot/site/workflow";
 // Operations alerts. The person reading them is the site owner, not an engineer: each
 // message says what readers see, whether it heals by itself and what, if anything, the owner must do.
 //   now   — readers are affected and it has not healed: sent at once, repeated hourly, recovery reported.
@@ -29,7 +30,7 @@ const modelsOn = () => process.env.MODEL_CALLS_ENABLED === "true";
 const QUIET_MINUTES = Math.min(Number(process.env.ALERT_QUIET_MINUTES || ALERTS.quietMinutes), 1440);
 
 /** Everything wrong right now, with its level. */
-export async function collectFindings(now = Date.now()): Promise<Finding[]> {
+export async function collectFindings(now = Date.now(), policy: WorkflowPolicy = WORKFLOW): Promise<Finding[]> {
   const out: Finding[] = [];
 
   // Readers affected now
@@ -37,7 +38,7 @@ export async function collectFindings(now = Date.now()): Promise<Finding[]> {
   // a site that stops changing. Skipped for 20 minutes after the worker starts, and where the valves are off.
   const [hb] = await sql<{ value: { startedAt?: string } }[]>`SELECT value FROM settings WHERE key = 'heartbeat.worker'`;
   const settled = !hb?.value.startedAt || now - Date.parse(hb.value.startedAt) > 20 * 60_000;
-  if (settled && collecting()) {
+  if (policy.quietContentAlerts && settled && collecting()) {
     const [last] = await sql<{ at: Date | null }[]>`SELECT max(a.discovered_at) AS at FROM articles a
       JOIN sources s ON s.id = a.source_id WHERE s.participation_mode = 'editorial' AND a.discovered_at > now() - interval '1 day'`;
     if (!last?.at || now - last.at.getTime() > QUIET_MINUTES * 60_000) {
@@ -99,7 +100,7 @@ export async function collectFindings(now = Date.now()): Promise<Finding[]> {
     }
     // The daily report is composed from its edition time, and tried again every half hour until it exists:
     // two hours later it is overdue.
-    if (now >= beijingAt(beijingDate(now), EDITION_TIMES.daily).getTime() + 2 * 3600_000) {
+    if (policy.reportsEnabled && now >= beijingAt(beijingDate(now), EDITION_TIMES.daily).getTime() + 2 * 3600_000) {
       const [r] = await sql`SELECT 1 FROM reports WHERE kind = 'daily' AND key = ${beijingDate(now)}`;
       if (!r) {
         out.push({

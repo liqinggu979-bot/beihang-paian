@@ -24,6 +24,13 @@ function int(name: string, fallback: number): number {
   return parsed;
 }
 
+/** A finite local subscription guard; invalid configuration never makes it unlimited. */
+export function parseSubscriptionRequestLimit(value: string | undefined): number {
+  if (value === undefined || value === '') return 100;
+  if (!/^\d+$/.test(value) || !Number.isSafeInteger(Number(value)) || Number(value) < 1 || Number(value) > 1000) throw new Error('CHATGPT_DAILY_REQUEST_LIMIT must be an integer between 1 and 1000');
+  return Number(value);
+}
+
 /** On only when set to true, like every switch read straight from the environment. */
 function bool(name: string, fallback: boolean): boolean {
   const value = env[name];
@@ -42,6 +49,8 @@ export const config = {
   // Every generated absolute link uses this address, whatever Host a request arrives with.
   siteUrl: str("SITE_URL", SITE.defaultUrl).replace(/\/+$/, ""),
   egressProxyUrl: env.EGRESS_PROXY_URL || null,
+  chatgptProxyUrl: env.HTTPS_PROXY || null,
+  chatgptDailyRequestLimit: parseSubscriptionRequestLimit(env.CHATGPT_DAILY_REQUEST_LIMIT),
   allowPrivateNetworkFetch: bool("ALLOW_PRIVATE_NETWORK_FETCH", false),
   feishuContentPushEnabled: bool("FEISHU_CONTENT_PUSH_ENABLED", false),
   indexNowSubmitEnabled: bool("INDEXNOW_SUBMIT_ENABLED", false),

@@ -1,4 +1,7 @@
 // The backend of the site's modules, installed by the api and the worker when they start (site/modules/index.ts).
 import type { ServerModule } from "@aihot/backend/modules";
 
-export const SERVER_MODULES: readonly ServerModule[] = [];
+import { beihangEvaluation } from "../../modules/beihang-evaluation/server.ts";
+import { beihangWechat } from "../../modules/beihang-wechat/server.ts";
+
+export const SERVER_MODULES: readonly ServerModule[] = [beihangEvaluation, beihangWechat];

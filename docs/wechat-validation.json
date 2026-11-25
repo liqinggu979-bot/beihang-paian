@@ -1,0 +1,507 @@
+{
+  "verifiedAt": "2026-11-04T09:30:17.829983+00:00",
+  "coverage": "public-search-and-latest",
+  "headless": true,
+  "restartPreservedSchedule": true,
+  "checks": {
+    "backend": 681,
+    "web": 42,
+    "pythonParsing": 11,
+    "typecheck": true,
+    "productionBuild": true,
+    "websiteSmoke": true,
+    "mcpContract": true,
+    "mobileOverflow": false,
+    "pageErrors": 0
+  },
+  "schedule": [
+    {
+      "id": "wechat-aviation",
+      "name": "微信·北航微航空",
+      "interval_minutes": 2880,
+      "last_fetch_at": "2026-11-04T09:18:26.504611+00:00",
+      "last_ok_at": null,
+      "next_fetch_at": "2026-11-06T09:18:26.504611+00:00",
+      "interval_seconds": 172800
+    },
+    {
+      "id": "wechat-buaa",
+      "name": "微信·北京航空航天大学",
+      "interval_minutes": 2880,
+      "last_fetch_at": "2026-11-04T09:26:53.527512+00:00",
+      "last_ok_at": "2026-11-04T09:19:43.202728+00:00",
+      "next_fetch_at": "2026-11-06T09:26:53.527512+00:00",
+      "interval_seconds": 172800
+    },
+    {
+      "id": "wechat-jiaowu",
+      "name": "微信·北航教务部",
+      "interval_minutes": 2880,
+      "last_fetch_at": "2026-11-04T09:21:49.017006+00:00",
+      "last_ok_at": "2026-11-04T09:22:16.381414+00:00",
+      "next_fetch_at": "2026-11-06T09:21:49.017006+00:00",
+      "interval_seconds": 172800
+    },
+    {
+      "id": "wechat-modeling",
+      "name": "微信·北航数学建模社",
+      "interval_minutes": 2880,
+      "last_fetch_at": "2026-11-04T09:22:16.389485+00:00",
+      "last_ok_at": "2026-11-04T09:22:25.902231+00:00",
+      "next_fetch_at": "2026-11-06T09:22:16.389485+00:00",
+      "interval_seconds": 172800
+    },
+    {
+      "id": "wechat-services",
+      "name": "微信·北航总务",
+      "interval_minutes": 2880,
+      "last_fetch_at": "2026-11-04T09:22:31.391273+00:00",
+      "last_ok_at": "2026-11-04T09:22:47.104721+00:00",
+      "next_fetch_at": "2026-11-06T09:22:31.391273+00:00",
+      "interval_seconds": 172800
+    },
+    {
+      "id": "wechat-wall",
+      "name": "微信·北航校园墙",
+      "interval_minutes": 2880,
+      "last_fetch_at": "2026-11-04T09:23:32.113742+00:00",
+      "last_ok_at": null,
+      "next_fetch_at": "2026-11-06T09:23:32.113742+00:00",
+      "interval_seconds": 172800
+    }
+  ],
+  "liveChecks": [
+    {
+      "source_id": "wechat-aviation",
+      "status": "failed",
+      "started_at": "2026-11-04T09:18:26.504+00:00",
+      "finished_at": "2026-11-04T09:19:34.000331+00:00",
+      "found_count": 11,
+      "new_count": 11,
+      "detail": {
+        "issues": [
+          {
+            "code": "publisher_id_not_verified",
+            "stage": "search-article"
+          }
+        ],
+        "latest": "ok",
+        "search": {
+          "pages": 2,
+          "state": "ok",
+          "results": 20,
+          "matchingResults": 11
+        },
+        "partial": true,
+        "coverage": "public-search-and-latest",
+        "headless": true,
+        "rejected": []
+      }
+    },
+    {
+      "source_id": "wechat-buaa",
+      "status": "failed",
+      "started_at": "2026-11-04T09:26:53.527+00:00",
+      "finished_at": "2026-11-04T09:29:31.100289+00:00",
+      "found_count": 3,
+      "new_count": 2,
+      "detail": {
+        "issues": [
+          {
+            "code": "TimeoutError",
+            "stage": "search-article"
+          },
+          {
+            "code": "TimeoutError",
+            "stage": "search-article"
+          },
+          {
+            "code": "TimeoutError",
+            "stage": "search-article"
+          },
+          {
+            "code": "TimeoutError",
+            "stage": "search-article"
+          },
+          {
+            "code": "TimeoutError",
+            "stage": "search-article"
+          },
+          {
+            "code": "search_time_budget_reached",
+            "stage": "public-search"
+          }
+        ],
+        "latest": "ok",
+        "search": {
+          "pages": 1,
+          "state": "partial",
+          "results": 10,
+          "matchingResults": 7
+        },
+        "partial": true,
+        "coverage": "public-search-and-latest",
+        "headless": true,
+        "rejected": []
+      }
+    },
+    {
+      "source_id": "wechat-jiaowu",
+      "status": "ok",
+      "started_at": "2026-11-04T09:21:49.017+00:00",
+      "finished_at": "2026-11-04T09:22:16.382137+00:00",
+      "found_count": 4,
+      "new_count": 4,
+      "detail": {
+        "issues": [],
+        "latest": "ok",
+        "search": {
+          "pages": 2,
+          "state": "ok",
+          "results": 20,
+          "matchingResults": 3
+        },
+        "partial": false,
+        "coverage": "public-search-and-latest",
+        "headless": true,
+        "rejected": []
+      }
+    },
+    {
+      "source_id": "wechat-modeling",
+      "status": "ok",
+      "started_at": "2026-11-04T09:22:16.389+00:00",
+      "finished_at": "2026-11-04T09:22:25.904957+00:00",
+      "found_count": 0,
+      "new_count": 0,
+      "detail": {
+        "issues": [],
+        "latest": "ok",
+        "search": {
+          "pages": 2,
+          "state": "ok",
+          "results": 20,
+          "matchingResults": 0
+        },
+        "partial": false,
+        "coverage": "public-search-and-latest",
+        "headless": true,
+        "rejected": []
+      }
+    },
+    {
+      "source_id": "wechat-services",
+      "status": "ok",
+      "started_at": "2026-11-04T09:22:31.391+00:00",
+      "finished_at": "2026-11-04T09:22:47.105448+00:00",
+      "found_count": 1,
+      "new_count": 1,
+      "detail": {
+        "issues": [],
+        "latest": "ok",
+        "search": {
+          "pages": 2,
+          "state": "ok",
+          "results": 20,
+          "matchingResults": 2
+        },
+        "partial": false,
+        "coverage": "public-search-and-latest",
+        "headless": true,
+        "rejected": []
+      }
+    },
+    {
+      "source_id": "wechat-wall",
+      "status": "failed",
+      "started_at": "2026-11-04T09:23:32.113+00:00",
+      "finished_at": "2026-11-04T09:24:53.520401+00:00",
+      "found_count": 9,
+      "new_count": 9,
+      "detail": {
+        "issues": [
+          {
+            "code": "TimeoutError",
+            "stage": "search-article"
+          },
+          {
+            "code": "TimeoutError",
+            "stage": "search-article"
+          }
+        ],
+        "latest": "ok",
+        "search": {
+          "pages": 2,
+          "state": "ok",
+          "results": 20,
+          "matchingResults": 13
+        },
+        "partial": true,
+        "coverage": "public-search-and-latest",
+        "headless": true,
+        "rejected": []
+      }
+    }
+  ],
+  "articles": [
+    {
+      "source_id": "wechat-aviation",
+      "title": "碧空长鸣，铁翼凌云！11月8日，北航空军双学籍飞行员邀你共赴蓝天之约！",
+      "published_at": "2026-11-03T10:31:29+00:00",
+      "body_length": 2198,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654447343:1",
+      "processing_state": "analyzed",
+      "selected": true
+    },
+    {
+      "source_id": "wechat-aviation",
+      "title": "第四届全国大学生职业规划大赛北航校赛报名启动！",
+      "published_at": "2026-11-02T12:12:28+00:00",
+      "body_length": 2204,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654447299:1",
+      "processing_state": "analyzed",
+      "selected": true
+    },
+    {
+      "source_id": "wechat-aviation",
+      "title": "柒肆华章，星海同航！航空学院校庆嘉年华等你参与！",
+      "published_at": "2026-10-22T10:55:20+00:00",
+      "body_length": 1361,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654447109:1",
+      "processing_state": "analyzed",
+      "selected": true
+    },
+    {
+      "source_id": "wechat-aviation",
+      "title": "健康第一，“篮”动青春！2026年航空科学与工程学院硕博新生篮球赛来了！",
+      "published_at": "2026-10-21T11:19:34+00:00",
+      "body_length": 855,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654447088:2",
+      "processing_state": "analyzed",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-aviation",
+      "title": "真·上手造飞机！北航这专业太硬核",
+      "published_at": "2026-03-27T10:58:07+00:00",
+      "body_length": 4370,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654443915:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-aviation",
+      "title": "北京航空航天大学航空科学与工程学院招收2026年硕士研究生一志愿复试录取工作方案",
+      "published_at": "2026-03-20T11:54:07+00:00",
+      "body_length": 4396,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654443764:1",
+      "processing_state": "analyzed",
+      "selected": true
+    },
+    {
+      "source_id": "wechat-aviation",
+      "title": "喜报丨航空学院关工委获评北京市“五好”基层关工委!",
+      "published_at": "2026-03-19T13:00:00+00:00",
+      "body_length": 2559,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654443748:1",
+      "processing_state": "analyzed",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-aviation",
+      "title": "守正创新谋育人，数智赋能促发展 —— 航空科学与工程学院举办2026年本研一体教育教学研讨会",
+      "published_at": "2026-03-09T12:58:05+00:00",
+      "body_length": 1789,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654443662:1",
+      "processing_state": "analyzed",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-aviation",
+      "title": "拨雪迎春，灿然新程！新学期，新气象，快来解锁航空学子第一周！",
+      "published_at": "2026-03-08T08:25:42+00:00",
+      "body_length": 805,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654443646:1",
+      "processing_state": "analyzed",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-aviation",
+      "title": "翼展风华，逐梦蓝天 —— 北航航模队2026年寒假集训纪实",
+      "published_at": "2026-02-26T14:01:30+00:00",
+      "body_length": 1985,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654443599:1",
+      "processing_state": "analyzed",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-aviation",
+      "title": "北京航空航天大学牵头召开低空技术与工程领域“101计划”建设工作推进会",
+      "published_at": "2026-01-25T13:51:37+00:00",
+      "body_length": 1297,
+      "identity": "wechat:MjM5MjI2OTM2Nw==:2654443367:1",
+      "processing_state": "analyzed",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-buaa",
+      "title": "北航，再捧杯！",
+      "published_at": "2026-11-04T04:31:00+00:00",
+      "body_length": 3207,
+      "identity": "wechat:MzA3NTY1MTUzOQ==:2651499599:1",
+      "processing_state": "analyzed",
+      "selected": true
+    },
+    {
+      "source_id": "wechat-buaa",
+      "title": "北航师生热切关注2026年全国两会",
+      "published_at": "2026-03-06T03:08:45+00:00",
+      "body_length": 7103,
+      "identity": "wechat:MzA3NTY1MTUzOQ==:2651486787:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-buaa",
+      "title": "深化改革，真抓实干！北航召开2026年度工作会！",
+      "published_at": "2026-03-02T11:22:11+00:00",
+      "body_length": 4370,
+      "identity": "wechat:MzA3NTY1MTUzOQ==:2651486598:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-jiaowu",
+      "title": "“课堂纸飞机”喜迎北航74周年校庆",
+      "published_at": "2026-10-25T00:18:13+00:00",
+      "body_length": 366,
+      "identity": "wechat:MzU5NDk2NzQ0MQ==:2247495034:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-jiaowu",
+      "title": "关于2026年清明节教学安排的通知",
+      "published_at": "2026-03-16T09:12:42+00:00",
+      "body_length": 279,
+      "identity": "wechat:MzU5NDk2NzQ0MQ==:2247494078:1",
+      "processing_state": "analyzed",
+      "selected": true
+    },
+    {
+      "source_id": "wechat-jiaowu",
+      "title": "学校召开本科教学督导组2026年春季学期工作会",
+      "published_at": "2026-03-04T08:23:42+00:00",
+      "body_length": 818,
+      "identity": "wechat:MzU5NDk2NzQ0MQ==:2247494054:1",
+      "processing_state": "analyzed",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-jiaowu",
+      "title": "2026年春季学期补考考表公布的通知",
+      "published_at": "2026-02-23T10:28:12+00:00",
+      "body_length": 406,
+      "identity": "wechat:MzU5NDk2NzQ0MQ==:2247494044:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-services",
+      "title": "以心迎“新”，总务护航｜2026级迎新服务保障工作圆满完成",
+      "published_at": "2026-09-07T08:32:05+00:00",
+      "body_length": 1242,
+      "identity": "wechat:MzAxODgxMTczNw==:2247502444:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-wall",
+      "title": "男朋友生日马上到了，但是不知道该送什么礼物能戳中他的心。有没有男生同胞们站在男生的角度说说男生喜欢什么礼物，谢谢了！",
+      "published_at": "2026-11-02T11:57:53+00:00",
+      "body_length": 2287,
+      "identity": "wechat:MzkzNTE4MjI5NQ==:2247548039:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-wall",
+      "title": "北航26级新生专属 | 2026雅思秋季校内班招生简章",
+      "published_at": "2026-10-31T10:15:00+00:00",
+      "body_length": 442,
+      "identity": "wechat:MzkzNTE4MjI5NQ==:2247548020:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-wall",
+      "title": "北航26级新生专属 | 2026雅思秋季校内班招生简章",
+      "published_at": "2026-10-23T10:30:00+00:00",
+      "body_length": 443,
+      "identity": "wechat:MzkzNTE4MjI5NQ==:2247547941:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-wall",
+      "title": "北航补牙大无语 本人今天下午去沙河校医院补牙，医生一直不耐烦发脾气，她说一个人就那么长时间，不可能一直给我补",
+      "published_at": "2026-03-25T11:10:24+00:00",
+      "body_length": 3793,
+      "identity": "wechat:MzkzNTE4MjI5NQ==:2247544811:2",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-wall",
+      "title": "有没有打王者厉害的uu 我是女生，2300分千强中路蹲蹲下赛季一起玩的搭子呀qwq",
+      "published_at": "2026-03-23T11:21:47+00:00",
+      "body_length": 2741,
+      "identity": "wechat:MzkzNTE4MjI5NQ==:2247544782:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-wall",
+      "title": "我们学校哪个专业最好，我想转专业",
+      "published_at": "2026-03-22T12:16:45+00:00",
+      "body_length": 2972,
+      "identity": "wechat:MzkzNTE4MjI5NQ==:2247544775:2",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-wall",
+      "title": "说好理工学校男生多的呢，怎么我还找不到对象",
+      "published_at": "2026-03-11T11:13:53+00:00",
+      "body_length": 3002,
+      "identity": "wechat:MzkzNTE4MjI5NQ==:2247544663:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-wall",
+      "title": "北航的同学们！！快来测测你的成绩能申请哪所院校？",
+      "published_at": "2026-03-03T04:00:00+00:00",
+      "body_length": 85,
+      "identity": "wechat:MzkzNTE4MjI5NQ==:2247544629:1",
+      "processing_state": "new",
+      "selected": false
+    },
+    {
+      "source_id": "wechat-wall",
+      "title": "北航保研/留学必看：为什么这批同学在大二结束前，就搞定了雅思7.0？（揭秘校内班）",
+      "published_at": "2026-03-02T11:00:00+00:00",
+      "body_length": 1371,
+      "identity": "wechat:MzkzNTE4MjI5NQ==:2247544628:1",
+      "processing_state": "new",
+      "selected": false
+    }
+  ],
+  "limitations": [
+    "Public search is not a complete publisher history.",
+    "The modeling account latest fallback returned an original 2025-10-05 article, outside the rolling year.",
+    "Some individual pages timed out or did not verify; qualified partial results were retained.",
+    "Fewer than ten articles available for several accounts; full per-account sample validation remains incomplete.",
+    "Remaining summaries wait under the unchanged rolling 24-hour 200-request shared limit."
+  ]
+}

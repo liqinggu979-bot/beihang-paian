@@ -461,3 +461,16 @@ export interface TopicPage {
   pageCount: number;
   pageSize: number;
 }
+
+/** Public, non-sensitive source-check status for the reader pages. */
+export interface CheckStatus {
+  intervalMinutes: number | null;
+  checkedAt: string | null;
+  pending: number;
+  modelsEnabled: boolean; budgetPaused?: boolean;
+  modelProvider?: "api" | "chatgpt_subscription";
+  modelReady?: boolean;
+  modelResumeAt?: string | null;
+  sources: Array<{ id: string; name: string; checkedAt: string | null; lastSuccessAt: string | null; nextCheckAt: string | null; state: "unchecked" | "checking" | "failed" | "partial" | "updated" | "unchanged"; newItems: number; coverage?: "public-search-and-latest" }>;
+}
+export interface ReferenceEntry { title: string; url: string; publishedAt: string | null; checkedAt: string; source: string; tags: string[]; note?: string }

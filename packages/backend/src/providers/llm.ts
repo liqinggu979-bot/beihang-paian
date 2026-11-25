@@ -2,6 +2,8 @@
 // deployment names in LLM_BASE_URL / LLM_API_KEY / LLM_MODEL, and every capability uses it unless the
 // site, an environment variable or the admin's model page picks one of the site's named presets
 // (site/models.ts).
+import { SubscriptionUsageUnavailableError, assertSubscriptionAvailable, pauseSubscription, subscriptionMode, subscriptionModel, subscriptionAccount, subscriptionRequest, subscriptionFetch, consumeSubscriptionStream, SUBSCRIPTION_SERVICE, SUBSCRIPTION_DAILY_LIMIT } from './chatgpt-subscription.ts';
+import { boundModelRequest, VERIFIED_TARIFF } from "./model-budget.ts";
 import type { z } from "zod";
 import { PRESETS } from "@aihot/site/models";
 import { config, credential } from "../config.ts";
@@ -40,8 +42,8 @@ function reasoningTokensFromEnv(value: string | undefined): number | undefined {
 export const MODELS: Record<string, ModelSpec> = {
   // Read from the environment at call time.
   default: {
-    key: "default", service: "llm", baseUrlEnv: "LLM_BASE_URL", apiKeyEnv: "LLM_API_KEY",
-    get model() { return process.env.LLM_MODEL ?? ""; },
+    key: "default", get service() { return subscriptionMode() ? SUBSCRIPTION_SERVICE : "llm"; }, baseUrlEnv: "LLM_BASE_URL", apiKeyEnv: "LLM_API_KEY",
+    get model() { return subscriptionMode() ? subscriptionModel() : process.env.LLM_MODEL ?? ""; },
     get extra() { return extraFromEnv(process.env.LLM_EXTRA_JSON); },
     get reasoningTokens() { return reasoningTokensFromEnv(process.env.LLM_REASONING_TOKENS); },
     get jsonMode() { return process.env.LLM_JSON_MODE !== "false"; },
@@ -130,12 +132,41 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
   const spec = MODELS[opts.model];
   if (!spec) throw new Error(`Unknown model ${opts.model}`);
   if (!config.modelCallsEnabled) throw new Error("Model calls are disabled (MODEL_CALLS_ENABLED=false)");
+  if (subscriptionMode()) {
+    if (opts.model !== 'default' || typeof opts.user !== 'string') throw new Error('ChatGPT subscription supports the default text model only');
+    await assertSubscriptionAvailable();
+    const account = await subscriptionAccount();
+    if (!account.model) throw new Error('Choose a ChatGPT subscription model in the local connection page');
+    const body = subscriptionRequest(account.model, opts.system, opts.user);
+    const receipt = await paidRequest({ service: SUBSCRIPTION_SERVICE, billing: 'subscription', dailyLimit: SUBSCRIPTION_DAILY_LIMIT,
+      model: account.model, purpose: opts.purpose, subject: opts.subject, attemptTag: opts.attemptTag,
+      identity: { model: account.model, clientId: account.clientId, promptVersion: opts.promptVersion, system: sha256(opts.system), user: sha256(opts.user), transport: 'siwc-responses-v1' },
+      requestSummary: { promptVersion: opts.promptVersion, systemHash: sha256(opts.system), userHash: sha256(opts.user), transport: 'siwc-responses-v1', billing: 'subscription' },
+    }, async () => {
+      const res = await subscriptionFetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + account.accessToken }, body: JSON.stringify(body), signal: AbortSignal.timeout(opts.timeoutMs ?? 120_000) });
+      const response = await consumeSubscriptionStream(res).catch(async error => {
+        if (error instanceof SubscriptionUsageUnavailableError) await pauseSubscription(error.retryAfterSeconds, account.clientId);
+        throw error;
+      });
+      return { response: { choices: [{ message: { content: response.content } }], usage: response.usage }, requestId: response.id, usage: response.usage, cost: null };
+    });
+    const response = receipt.response as { choices: Array<{ message: { content: string } }>; usage?: Record<string, unknown> };
+    try {
+      const content = response.choices[0]!.message.content;
+      const data = opts.schema.parse(opts.parse ? opts.parse(content) : extractJson(content));
+      return { data, receiptId: receipt.receiptId, reused: receipt.reused, model: spec.key, usage: response.usage ?? null };
+    } catch {
+      await rejectReceivedResponse(receipt.receiptId, 'unusable ChatGPT subscription output');
+      throw new ModelOutputError('ChatGPT subscription returned unusable structured output', receipt.receiptId);
+    }
+  }
   const baseUrl = credential("models", spec.baseUrlEnv);
   const apiKey = credential("models", spec.apiKeyEnv);
   if (!baseUrl || !apiKey || !spec.model) throw new Error(`Model ${opts.model} is not configured (${spec.baseUrlEnv}, ${spec.apiKeyEnv}${spec.key === "default" ? ", LLM_MODEL" : ""})`);
 
   const temperature = opts.temperature ?? 0.2;
-  const maxTokens = Math.max(opts.maxTokens ?? 1500, 512) + (spec.reasoningTokens ?? 0);
+  const bounded = boundModelRequest(spec, baseUrl, opts.system, opts.user, Math.max(opts.maxTokens ?? 1500, 512) + (spec.reasoningTokens ?? 0));
+  const maxTokens = bounded.maxTokens;
   const userText = typeof opts.user === "string" ? opts.user : JSON.stringify(opts.user);
   const body: Record<string, unknown> = {
     model: spec.model,
@@ -146,13 +177,14 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
       { role: "user", content: typeof opts.user === "string" || Array.isArray(opts.user) ? opts.user : userText },
     ],
     temperature,
-    max_tokens: maxTokens,
     ...(spec.jsonMode && opts.json !== false ? { response_format: { type: "json_object" } } : {}),
     ...(spec.extra ?? {}),
+    max_tokens: maxTokens,
   };
 
   const receipt = await paidRequest(
     {
+      dailyLimit: bounded.dailyLimit,
       service: spec.service,
       model: spec.model,
       purpose: opts.purpose,
@@ -189,7 +221,10 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
         response: { ...json, _latencyMs: Date.now() - started },
         requestId: (json.id as string | undefined) ?? res.headers.get("x-request-id"),
         usage,
-        cost: null,
+        cost: bounded.dailyLimit === undefined ? null : {
+          amount: ((Number(usage?.prompt_tokens) || 24256) * VERIFIED_TARIFF.inputPerMillionCny + (Number(usage?.completion_tokens) || maxTokens) * VERIFIED_TARIFF.outputPerMillionCny) / 1_000_000,
+          currency: "CNY", basis: "estimated",
+        },
       };
     },
   );

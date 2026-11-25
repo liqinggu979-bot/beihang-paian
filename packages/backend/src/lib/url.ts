@@ -2,6 +2,18 @@
 import { lookup } from "node:dns/promises";
 import net from "node:net";
 
+/** Exact local deployment exceptions for publicly named campus HTTPS servers. Never whole subnets. */
+export function trustedSourceAddress(host: string, address: string): boolean {
+  if (!host.endsWith(".buaa.edu.cn") && host !== "buaa.edu.cn") return false;
+  // Loopback, link-local/metadata and arbitrary address literals can never be approved here.
+  if (!/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(address) || net.isIP(address) !== 4) return false;
+  const raw = process.env.TRUSTED_SOURCE_ADDRESSES_JSON;
+  if (!raw) return false;
+  const addresses = JSON.parse(raw) as Record<string, unknown>;
+  return Array.isArray(addresses[host]) && (addresses[host] as unknown[]).includes(address);
+}
+
+
 const TRACKING_PARAMS = /^(utm_[a-z]+|spm|from|ref|ref_src|ref_url|source|share_source|share_token|fbclid|gclid|igshid|mc_cid|mc_eid|_hsenc|_hsmi|scene|chksm|sessionid|srcid|clicktime|enterid|mkt_tok)$/i;
 
 /** Canonical form used for identity: lower-case host, no fragment, no tracking params, no trailing slash. */
@@ -156,7 +168,7 @@ export async function assertPublicUrl(url: string, allowPrivate = false, resolve
   const addresses = literal ? [{ address: host }] : resolve ? (await resolve(host)).map((address) => ({ address })) : await lookup(host, { all: true });
   if (addresses.length === 0) throw new Error(`No address for ${host}`);
   for (const { address } of addresses) {
-    if (isBlockedAddress(address)) throw new Error(`Blocked private address for ${host}`);
+    if (isBlockedAddress(address) && !(u.protocol === "https:" && (!u.port || u.port === "443") && trustedSourceAddress(host, address))) throw new Error(`Blocked private address for ${host}`);
   }
   return u;
 }
@@ -175,7 +187,7 @@ export function guardedLookup(hostname: string, options: { all?: boolean; family
   }
   lookup(hostname, { all: true, family: opts.family ?? 0 }).then(
     (list) => {
-      const bad = list.find((a) => isBlockedAddress(a.address));
+      const bad = list.find((a) => isBlockedAddress(a.address) && !trustedSourceAddress(hostname.toLowerCase(), a.address));
       if (bad || list.length === 0) {
         callback(Object.assign(new Error(`Blocked private address for ${hostname}`), { code: "EBLOCKED" }), opts.all ? [] : "", 0);
         return;

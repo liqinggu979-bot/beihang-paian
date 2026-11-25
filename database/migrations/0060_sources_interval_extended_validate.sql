@@ -1,0 +1,1 @@
+ALTER TABLE sources VALIDATE CONSTRAINT sources_interval_extended_check;

@@ -1,3 +1,4 @@
+import { WORKFLOW } from "@aihot/site/workflow";
 // Collection run for one source: fetch listing → filter → store material → enqueue processing.
 // A failed fetch never advances the success cursor; the source's health reflects consecutive failures.
 import { sql, type Db } from "../db.ts";
@@ -53,11 +54,11 @@ const DAY_MS = 86_400_000;
 
 type CollectionCandidate = Candidate & { detailRules?: string };
 
-async function store(sourceId: string, candidates: CollectionCandidate[], backfill: string | null): Promise<{ created: number; revised: number }> {
+async function store(sourceId: string, candidates: CollectionCandidate[], backfill: string | null, observedAfter?: Date | null): Promise<{ created: number; revised: number }> {
   let created = 0;
   let revised = 0;
   for (const c of candidates) {
-    const material = { ...c, sourceId, via: "fetch" as const, backfill };
+    const material = { ...c, sourceId, via: "fetch" as const, backfill, observedAfter };
     const res = await upsertMaterial(material);
     // A successful page with no matching field is complete too. Otherwise an undated article at
     // the front of a listing would consume the detail budget forever and strand the remaining ones.
@@ -83,7 +84,7 @@ async function recordFetch(db: Db, sourceId: string, runId: number, run: { found
     await db`
       UPDATE sources SET last_fetch_at = now(), last_ok_at = now(), fail_count = 0, last_error = NULL,
         health = 'ok', cursor = ${db.json(run.cursor as never)}, updated_at = now(),
-        next_fetch_at = now() + make_interval(mins => interval_minutes)
+        next_fetch_at = now() + make_interval(mins => coalesce(${WORKFLOW.collection?.intervalMinutes ?? null}::int, interval_minutes))
       WHERE id = ${sourceId}`;
     await db`UPDATE fetch_runs SET status = 'ok', finished_at = now(), found_count = ${run.found}, new_count = ${run.created}, detail = ${detail} WHERE id = ${runId}`;
     return;
@@ -93,7 +94,7 @@ async function recordFetch(db: Db, sourceId: string, runId: number, run: { found
       fail_count = CASE WHEN ${run.budget} THEN fail_count ELSE fail_count + 1 END,
       last_error = ${run.error},
       health = CASE WHEN ${run.budget} THEN health WHEN fail_count + 1 >= 5 THEN 'failing' ELSE 'degraded' END,
-      next_fetch_at = now() + make_interval(mins => CASE WHEN ${run.budget} THEN 15 ELSE LEAST(interval_minutes * (fail_count + 2), 360) END),
+      next_fetch_at = now() + make_interval(mins => CASE WHEN ${WORKFLOW.collection?.retryAtNextCycle ?? false} THEN coalesce(${WORKFLOW.collection?.intervalMinutes ?? null}::int, interval_minutes) WHEN ${run.budget} THEN 15 ELSE LEAST(interval_minutes * (fail_count + 2), 360) END),
       updated_at = now()
     WHERE id = ${sourceId}`;
   await db`UPDATE fetch_runs SET status = 'failed', finished_at = now(), found_count = ${run.found}, new_count = ${run.created},
@@ -205,7 +206,7 @@ export async function collectSource(sourceId: string, opts: { force?: boolean } 
         summary: !!d.summarySelector && !(stored?.excerpt || c.excerpt),
         body: source.participation_mode === "editorial" && stored?.body_status !== "ok" && !c.bodyText && (!c.bodyStatus || c.bodyStatus === "pending"),
       };
-      if (!need.date && !need.title && !need.summary) continue;
+      if (!need.date && !need.title && !need.summary && !(need.body && d.bodySelector)) continue;
       if (detailBudgetSpent || detailUsed >= detailBudget) { detailPending += 1; continue; }
       detailUsed += 1;
       try {
@@ -239,7 +240,7 @@ export async function collectSource(sourceId: string, opts: { force?: boolean } 
       if (source.kind === "rss" && detailPending > 0) delete nextCursor.rss;
     } else delete nextCursor.detailRules;
 
-    ({ created, revised } = await store(sourceId, candidates, firstImport ? "first-import" : null));
+    ({ created, revised } = await store(sourceId, candidates, firstImport ? "first-import" : null, WORKFLOW.collection?.useLastSuccessfulCheck && !firstImport ? new Date(String(source.cursor?.lastOkAt)) : null));
 
     if (firstImport) nextCursor.initializedAt = new Date().toISOString();
     nextCursor.lastOkAt = new Date().toISOString();
@@ -378,6 +379,7 @@ const shardMinutes = (mode: string) => X_SHARD_MINUTES[mode] ?? 60;
  * hot_signal sources are allowed to be slower.
  */
 export async function adaptIntervals(): Promise<{ updated: number }> {
+  if (WORKFLOW.collection && !WORKFLOW.collection.adaptive) return { updated: 0 };
   const rows = await sql<Array<Pick<SourceRow, "id" | "participation_mode" | "kind" | "config" | "cursor"> & { paid_listing: boolean; per_day: number }>>`
     SELECT s.id, s.participation_mode, s.kind, s.config, s.cursor, coalesce(s.config->>'url', '') LIKE 'https://r.jina.ai/%' AS paid_listing,
       (SELECT count(*) FROM articles a WHERE a.source_id = s.id AND a.discovered_at > now() - interval '7 days' AND NOT a.backfill) / 7.0 AS per_day

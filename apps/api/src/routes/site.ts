@@ -1,3 +1,4 @@
+import { loadChecks, referenceLibrary } from "@aihot/backend/publication/checks";
 // First-party site API (/api/site/*). Not public, not versioned, never called /api/v2.
 // Reads through the same public read layer as v1; no cookies are read or set.
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
@@ -57,6 +58,11 @@ export function parseFilters(q: Record<string, string>): FilterParams {
 }
 
 export function registerSite(app: FastifyInstance) {
+  app.get("/api/site/checks", siteHandler(async (req, reply) => sendJsonWithEtag(req, reply, await loadChecks(), { etagPrefix: "checks", cacheControl: "public, max-age=60" })));
+  app.get("/api/site/references", siteHandler(async (req, reply) => {
+    const q = looseQuery(req);
+    return sendJsonWithEtag(req, reply, referenceLibrary(q.tag, q.q), { etagPrefix: "references", cacheControl: "public, max-age=60" });
+  }));
   app.get("/api/site/meta", siteHandler(async (req, reply) => {
     return sendJsonWithEtag(req, reply, siteMeta(), { etagPrefix: "meta", cacheControl: "public, max-age=60, s-maxage=60" });
   }));

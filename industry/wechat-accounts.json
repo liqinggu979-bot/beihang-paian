@@ -1,0 +1,147 @@
+[
+  {
+    "id": "wechat-jiaowu",
+    "name": "北航教务部",
+    "alias": "buaajwb",
+    "biz": "MzU5NDk2NzQ0MQ==",
+    "bookId": "MP_WXS_3594967441",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-modeling",
+    "name": "北航数学建模社",
+    "alias": "whq15091014",
+    "biz": "MzIxNjU2MjQ5NQ==",
+    "bookId": "MP_WXS_3216562495",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-aviation",
+    "name": "北航微航空",
+    "alias": "buaaase",
+    "biz": "MjM5MjI2OTM2Nw==",
+    "bookId": "MP_WXS_2392269367",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-wall",
+    "name": "北航校园墙",
+    "alias": "buaa321",
+    "biz": "MzkzNTE4MjI5NQ==",
+    "bookId": "MP_WXS_3935182295",
+    "tier": "T2",
+    "firstParty": false
+  },
+  {
+    "id": "wechat-services",
+    "name": "北航总务",
+    "alias": "",
+    "biz": "MzAxODgxMTczNw==",
+    "bookId": "MP_WXS_3018811737",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-buaa",
+    "name": "北京航空航天大学",
+    "alias": "BUAA_1952",
+    "searchTerm": "BUAA_1952",
+    "biz": "MzA3NTY1MTUzOQ==",
+    "bookId": "MP_WXS_3075651539",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-smart",
+    "name": "智慧北航",
+    "alias": "ihomexiaoi",
+    "biz": "MzAxNzEzNTY3NQ==",
+    "bookId": "MP_WXS_3017135675",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-unmanned",
+    "name": "北航无人系统研究院",
+    "biz": "MzkyOTczMTk3Ng==",
+    "bookId": "MP_WXS_3929731976",
+    "alias": "gh_17e9a8bc5a58",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-automation",
+    "name": "遇见北航Sasee",
+    "biz": "MzU0Mjk3MzYyNg==",
+    "bookId": "MP_WXS_3542973626",
+    "alias": "gh_b387c23b30f4",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-astronautics",
+    "name": "今日宇航",
+    "biz": "MzA5NzQwMjUzMg==",
+    "bookId": "MP_WXS_3097402532",
+    "alias": "gh_2521a7a3c67f",
+    "tier": "T1_5",
+    "firstParty": true,
+    "searchTerm": "\"今日宇航\" 北航"
+  },
+  {
+    "id": "wechat-ai",
+    "name": "北航人工智能学院",
+    "biz": "Mzg5NDUzODk1OQ==",
+    "bookId": "MP_WXS_3894538959",
+    "alias": "gh_0f4c66858eed",
+    "tier": "T1_5",
+    "firstParty": true,
+    "previousNames": [
+      "北航人工智能研究院"
+    ],
+    "searchTerm": "北航人工智能研究院"
+  },
+  {
+    "id": "wechat-instruments",
+    "name": "北航仪器光电人",
+    "biz": "MjM5MDIwOTEyOA==",
+    "bookId": "MP_WXS_2390209128",
+    "alias": "gh_63a72be388ec",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-computer",
+    "name": "北航计算机学院",
+    "biz": "MzIyMTE1OTkyNQ==",
+    "bookId": "MP_WXS_3221159925",
+    "alias": "gh_e2fc0ff4cd78",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-electronics",
+    "name": "北航电子信息工程学院",
+    "biz": "MzIxNzM3MTE2MA==",
+    "bookId": "MP_WXS_3217371160",
+    "alias": "gh_4bb8ad7617b8",
+    "tier": "T1_5",
+    "firstParty": true
+  },
+  {
+    "id": "wechat-mechanical",
+    "name": "北航机械学院之家",
+    "biz": "MzE5MTM4MTE5OA==",
+    "bookId": "MP_WXS_3191381198",
+    "alias": "gh_68985886e4b9",
+    "tier": "T1_5",
+    "firstParty": true,
+    "previousNames": [
+      "北航机械之家"
+    ],
+    "searchTerm": "北航机械之家"
+  }
+]

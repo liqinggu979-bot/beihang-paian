@@ -47,7 +47,7 @@ export function createEgressProxy(proxyUrl: string, resolve: Resolve): ProxyAgen
 }
 
 /** The fixed DNS service is reached through the same outbound proxy, never the system resolver. */
-export function createEgressResolver(proxyUrl: string): Resolve {
+export function createEgressResolver(proxyUrl: string, endpoint = "https://cloudflare-dns.com/dns-query"): Resolve {
   const dns = new ProxyAgent({ uri: proxyUrl, ...OUTBOUND_HTTP_OPTIONS, proxyTls: OUTBOUND_HTTP_OPTIONS, maxResponseSize: 64 * 1024 });
   const cache = new Map<string, { addresses: string[]; until: number }>();
   const pending = new Map<string, Promise<string[]>>();
@@ -59,7 +59,7 @@ export function createEgressResolver(proxyUrl: string): Resolve {
       work = (async () => {
         const signal = AbortSignal.timeout(5_000);
         const records = (await Promise.all(["A", "AAAA"].map(async (type) => {
-          const url = new URL("https://cloudflare-dns.com/dns-query");
+          const url = new URL(endpoint);
           url.search = new URLSearchParams({ name: host, type }).toString();
           const res = await request(url, { dispatcher: dns, signal, headers: { accept: "application/dns-json" } });
           if (res.statusCode !== 200) { await res.body.dump(); throw new Error(`DNS upstream ${res.statusCode}`); }

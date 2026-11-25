@@ -99,7 +99,7 @@ const EDITABLE = z
   .object({
     name: z.string().min(1).max(200),
     enabled: z.boolean(),
-    interval_minutes: z.number().int().min(1).max(1440),
+    interval_minutes: z.number().int().min(1).max(2880),
     tier: z.enum(["T1", "T1_5", "T2", "EXCLUDE_MP"]),
     participation_mode: z.enum(["editorial", "hot_signal", "isolated"]),
     signal_group_id: z.string().max(120).nullable(),
@@ -175,7 +175,7 @@ const CreateSchema = z
     config: z.record(z.string(), z.unknown()),
     tier: z.enum(["T1", "T1_5", "T2", "EXCLUDE_MP"]).default("T2"),
     participation_mode: z.enum(["editorial", "hot_signal", "isolated"]).default("editorial"),
-    interval_minutes: z.number().int().min(1).max(1440).default(30),
+    interval_minutes: z.number().int().min(1).max(2880).default(30),
     first_party: z.boolean().default(false),
     tags: z.array(z.string()).default([]),
     site_fulltext: z.boolean().default(SOURCE_DEFAULTS.siteFulltext),

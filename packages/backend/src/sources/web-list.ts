@@ -4,7 +4,7 @@ import { guardedFetch } from "../lib/http-fetch.ts";
 import { fetchListing } from "./listing-fetch.ts";
 import { identityKeyForUrl, normalizeUrl } from "../lib/url.ts";
 import { collapseWhitespace, stripTags } from "../lib/text.ts";
-import { readable, type ExtractedBody } from "../content/extract.ts";
+import { readable, selectedBody, type ExtractedBody } from "../content/extract.ts";
 import { sanitizeBody } from "../content/sanitize.ts";
 import { jinaRead } from "../providers/jina.ts";
 import { articleUtcOffset, parseLooseDate } from "./dates.ts";
@@ -344,7 +344,25 @@ export async function fetchWebList(source: SourceRow): Promise<Candidate[]> {
   else if (mode === "markdown") out = fromMarkdown(text, base, source);
   else if (mode === "docusaurus_changelog") out = fromDocusaurusChangelog(text, base, source);
   else if (mode === "intercom_changelog") out = fromIntercomChangelog(text, base, source);
-  else out = fromHtml(text, base, source);
+  else {
+    out = fromHtml(text, base, source);
+    const pages = Number(source.config.maxPages ?? 1);
+    if (!Number.isInteger(pages) || pages < 1 || pages > 100) throw new FetchError("maxPages must be an integer from 1 to 100");
+    const visited = new Set([base]);
+    let current = { text, base };
+    for (let page = 1; page < pages && source.config.nextPageSelector; page++) {
+      const $ = cheerio.load(current.text);
+      const next = absolute($(source.config.nextPageSelector).first().attr("href"), current.base);
+      if (!next || visited.has(next)) break;
+      if (new URL(next).origin !== new URL(base).origin) throw new FetchError("pagination must stay on the source origin");
+      visited.add(next);
+      const got = await fetchListingText({ ...source, config: { ...source.config, url: next } });
+      if (got.viaJina || new URL(got.base).origin !== new URL(base).origin) throw new FetchError("pagination redirected outside the source origin");
+      out.push(...fromHtml(got.text, got.base, source));
+      current = got;
+    }
+    out = [...new Map(out.map((item) => [item.url, item])).values()];
+  }
   if (out.length === 0) throw new FetchError(`no items matched (${mode})`);
   return out;
 }
@@ -372,12 +390,12 @@ export async function fetchDetail(url: string, source: SourceRow, need: DetailNe
   const jina = dateInJina || titleInJina ? (await jinaRead(url, { purpose: "source_detail", subject: `source:${source.id}` })).raw : null;
   let html: string | null = null;
   let body: ExtractedBody | null = null;
-  if ((need.date && !dateInJina) || (need.title && !titleInJina) || need.summary) {
+  if ((need.date && !dateInJina) || (need.title && !titleInJina) || need.summary || (need.body && d.bodySelector)) {
     const res = await guardedFetch(url, { timeoutMs: 20_000 });
     if (res.status !== 200) throw new FetchError(`HTTP ${res.status} for detail`, res.status);
     html = res.text();
     if (need.body && /html/.test(res.headers.get("content-type") ?? "")) {
-      try { body = readable(html, res.url, offset); }
+      try { body = d.bodySelector ? selectedBody(html, res.url, d.bodySelector) : readable(html, res.url, offset); }
       catch { /* A failed extraction must not discard the detail metadata. */ }
     }
   }

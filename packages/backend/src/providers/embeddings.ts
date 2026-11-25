@@ -1,3 +1,4 @@
+import { WORKFLOW } from "@aihot/site/workflow";
 // Text embeddings through receipts, used only for recall. Any OpenAI-compatible /embeddings endpoint
 // (EMBEDDING_BASE_URL, EMBEDDING_API_KEY, EMBEDDING_MODEL); with a DashScope key and nothing else set,
 // Aliyun text-embedding-v4 at 1024 dimensions. Without either, recall compares the texts themselves.
@@ -18,7 +19,7 @@ const VECTOR = EMBEDDING_DIMS > 0 ? z.array(z.number()).length(EMBEDDING_DIMS) :
 
 /** Embeddings are paid model calls: MODEL_CALLS_ENABLED=false switches them off like every other call. */
 export function embeddingsAvailable(): boolean {
-  return config.modelCallsEnabled && !!(credential("models", "EMBEDDING_API_KEY") ?? credential("models", "DASHSCOPE_API_KEY"));
+  return !(WORKFLOW.models && process.env.NODE_ENV === "production") && config.modelCallsEnabled && !!(credential("models", "EMBEDDING_API_KEY") ?? credential("models", "DASHSCOPE_API_KEY"));
 }
 
 async function embedBatch(texts: string[], subject: string): Promise<{ vectors: number[][]; receiptId: number }> {

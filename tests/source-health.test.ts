@@ -1,3 +1,4 @@
+import { UPSTREAM_WORKFLOW } from "@aihot/site/workflow";
 // Failure cases: fresh hot signals hide an editorial collection outage; intermittent failures vanish
 // after one success; zero-output counts stop at the display limit; publisher attribution makes a
 // working discovery source look idle; missing dates/repeated edits in signals are called bad articles.
@@ -32,11 +33,11 @@ test("hot-signal activity does not hide editorial collection stopping", async ()
   const editorial = await source("editorial", "editorial", new Date(now));
   const signal = await source("signal", "hot_signal", new Date(now));
   await material(signal, "signal");
-  const finding = (await collectFindings(now)).find(f => f.key === "content.collect");
+  const finding = (await collectFindings(now, UPSTREAM_WORKFLOW)).find(f => f.key === "content.collect");
   assert.equal(finding?.level, "now");
   assert.match(finding!.title, /文章|编辑/);
   await material(editorial, "editorial");
-  assert.equal((await collectFindings(now)).find(f => f.key === "content.collect"), undefined);
+  assert.equal((await collectFindings(now, UPSTREAM_WORKFLOW)).find(f => f.key === "content.collect"), undefined);
 });
 
 test("daily follow-ups retain chronic failures after a successful run, separately by use", async () => {
@@ -51,7 +52,7 @@ test("daily follow-ups retain chronic failures after a successful run, separatel
         CASE WHEN i BETWEEN 1 AND 5 THEN 'failed' ELSE 'ok' END, 1, 0,
         CASE WHEN i BETWEEN 1 AND 5 THEN 'HTTP 503' ELSE NULL END FROM generate_series(0,19) i`;
   }
-  const findings = await collectFindings(now);
+  const findings = await collectFindings(now, UPSTREAM_WORKFLOW);
   for (const [mode, id, other] of [["editorial", editorial, signal], ["hot_signal", signal, editorial]]) {
     const f = findings.find(f => f.key === `sources.unstable.${mode}`);
     assert.equal(f?.level, "later");
@@ -88,7 +89,7 @@ test("quality follow-ups count undated editorial articles and edits without judg
   await material(signal, "undated-signal", null);
   await sql`INSERT INTO article_revisions(article_id,revision,title,created_at)
     SELECT ${article.articleId},i,'changed',${new Date(now)} FROM generate_series(2,6) i`;
-  const findings = await collectFindings(now);
+  const findings = await collectFindings(now, UPSTREAM_WORKFLOW);
   const quality = findings.find(f => f.key === "sources.quality.editorial");
   assert.equal(quality?.level, "later");
   assert.ok(quality!.detail!.includes(editorial));
@@ -113,7 +114,7 @@ test("saved detail budget waits and shutdowns do not alert, while HTTP errors an
     await sql`INSERT INTO fetch_runs(source_id,started_at,finished_at,status,detail)
       VALUES(${id},${new Date(now)},${new Date(now)},'ok',${sql.json(detail)})`;
   }
-  const finding = (await collectFindings(now)).find(f => f.key === "sources.details.editorial");
+  const finding = (await collectFindings(now, UPSTREAM_WORKFLOW)).find(f => f.key === "sources.details.editorial");
   assert.ok(finding);
   assert.ok(!finding.detail!.includes(budget));
   assert.ok(!finding.detail!.includes(shutdown));

@@ -23,10 +23,10 @@ for (const [tab, names] of [
   ['api', ['/api/v1/dailies/latest', '/api/v1/weeklies/latest', '/api/v1/monthlies/latest']],
   ['mcp', [MCP_TOOL_NAMES.daily, MCP_TOOL_NAMES.weekly, MCP_TOOL_NAMES.monthly]],
 ] as const) {
-  test(`the ${tab} panel exposes all report entry points`, async () => {
+  test(`the ${tab} panel hides automatic report subscriptions while reports are disabled`, async () => {
     const response = await fetch(`${web.origin}/agent?tab=${tab}`);
     assert.equal(response.status, 200, web.logs());
     const panel = cheerio.load(await response.text())('#agent-panel').text();
-    for (const name of names) assert.ok(panel.includes(name), `${tab} panel omits ${name}`);
+    for (const name of names) assert.ok(!panel.includes(name), `${tab} panel advertises disabled ${name}`);
   });
 }

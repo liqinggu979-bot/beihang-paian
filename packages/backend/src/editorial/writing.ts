@@ -1,3 +1,4 @@
+import { WORKFLOW } from "@aihot/site/workflow";
 // The writing side of the analysis: the prefilter's and the content understanding's inputs, the
 // title/summary prompts for everything else, the output parsing and the deterministic guards. The
 // wording lives in the industry pack (industry/prompts/); a failed guard falls back without a repair call.
@@ -11,8 +12,8 @@ export const PREFILTER_SYSTEM = promptText("prefilter");
 export const UNDERSTAND_SYSTEM = promptText("understand");
 
 /** A body longer than this is cut (whole bodies are sent; a few run past the context). */
-export const MAX_BODY_CHARS = 60_000;
-const capBody = (s: string) => (s.length > MAX_BODY_CHARS ? s.slice(0, MAX_BODY_CHARS) : s);
+export const MAX_BODY_CHARS = WORKFLOW.models ? 4000 : 60_000;
+const capBody = (s: string) => s.length > MAX_BODY_CHARS ? `${s.slice(0, Math.floor(MAX_BODY_CHARS * .65))}\n[中段未提供；仅据已提供原文判断，不推断遗漏条件]\n${s.slice(-Math.floor(MAX_BODY_CHARS * .35))}` : s;
 
 // Text helpers
 

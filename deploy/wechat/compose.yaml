@@ -1,0 +1,17 @@
+name: paian-wechat-collector
+services:
+  wechat:
+    image: ghcr.io/rachelos/we-mp-rss@sha256:af771f21b3f7958a5dea16911fba050a6d7b92eac2fb2499c467c1b11f07ef34
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3002:8001"
+    env_file: ../../.data/wechat-collector/.env
+    environment:
+      ENABLE_JOB: "False"
+      HEADLESS: "true"
+    volumes:
+      - ../../.data/wechat-collector/data:/app/data
+      - ../../industry/wechat-accounts.json:/app/data/paian-targets.json:ro
+      - ../../modules/beihang-wechat/collector:/app/paian_collector:ro
+      - ./bootstrap.py:/app/paian-bootstrap.py:ro
+    command: ["bash", "-c", "source /app/environment.sh && source /app/env_$$(uname -m)/bin/activate && exec python3 /app/paian-bootstrap.py"]

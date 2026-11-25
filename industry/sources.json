@@ -1,370 +1,294 @@
 {
-  "$comment": "示范信源：首次启动时导入（scripts/seed.ts），已存在的不会被覆盖。之后在后台“信源”里新建、修改和暂停。字段说明见 docs/customize.md。",
   "sources": [
     {
-      "id": "rss-openai-news",
-      "name": "OpenAI News",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://openai.com/news/rss.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
+      "id": "news",
+      "name": "北航新闻网·综合新闻",
+      "kind": "web_list",
       "tier": "T1",
-      "owner_entity_id": "openai",
+      "owner_entity_id": "buaa",
+      "interval_minutes": 2880,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "config": {
+        "url": "https://news.buaa.edu.cn/zhxw.htm",
+        "parseMode": "html",
+        "itemSelector": ".twlist li",
+        "linkSelector": "a[href*='info/']",
+        "titleSelector": "h3",
+        "allowUrlPrefixes": [
+          "https://news.buaa.edu.cn/info/"
+        ],
+        "fetchPublicContent": true,
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 15,
+          "initialBackfillMonths": 12
+        },
+        "maxPages": 3,
+        "nextPageSelector": "a:contains('下页')",
+        "detail": {
+          "publishedAtSelector": ".cont-tit p",
+          "maxFetches": 60,
+          "titleSelector": ".cont-tit h2",
+          "titleAuthoritative": true,
+          "bodySelector": ".v_news_content"
+        }
+      }
     },
     {
-      "id": "rss-google-deepmind",
-      "name": "Google DeepMind",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://deepmind.google/blog/rss.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
+      "id": "news-science",
+      "name": "北航新闻网·科教在线",
+      "kind": "web_list",
       "tier": "T1",
-      "owner_entity_id": "google",
+      "owner_entity_id": "buaa",
+      "interval_minutes": 2880,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "config": {
+        "url": "https://news.buaa.edu.cn/kjzx_new.htm",
+        "parseMode": "html",
+        "itemSelector": ".tlist li",
+        "linkSelector": "a[href*='info/']",
+        "titleSelector": "h3",
+        "allowUrlPrefixes": [
+          "https://news.buaa.edu.cn/info/"
+        ],
+        "fetchPublicContent": true,
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 15,
+          "initialBackfillMonths": 12
+        },
+        "maxPages": 3,
+        "nextPageSelector": "a:contains('下页')",
+        "detail": {
+          "publishedAtSelector": ".cont-tit p",
+          "maxFetches": 60,
+          "titleSelector": ".cont-tit h2",
+          "titleAuthoritative": true,
+          "bodySelector": ".v_news_content"
+        }
+      }
     },
     {
-      "id": "rss-google-research",
-      "name": "Google Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://research.google/blog/rss/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
+      "id": "news-campus",
+      "name": "北航新闻网·校园风采",
+      "kind": "web_list",
       "tier": "T1",
-      "owner_entity_id": "google",
+      "owner_entity_id": "buaa",
+      "interval_minutes": 2880,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "研究"
-      ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "config": {
+        "url": "https://news.buaa.edu.cn/xyfc_new.htm",
+        "parseMode": "html",
+        "itemSelector": ".tlist li",
+        "linkSelector": "a[href*='info/']",
+        "titleSelector": "h3",
+        "allowUrlPrefixes": [
+          "https://news.buaa.edu.cn/info/"
+        ],
+        "fetchPublicContent": true,
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 15,
+          "initialBackfillMonths": 12
+        },
+        "maxPages": 3,
+        "nextPageSelector": "a:contains('下页')",
+        "detail": {
+          "publishedAtSelector": ".cont-tit p",
+          "maxFetches": 60,
+          "titleSelector": ".cont-tit h2",
+          "titleAuthoritative": true,
+          "bodySelector": ".v_news_content"
+        }
+      }
     },
     {
-      "id": "rss-hugging-face",
-      "name": "Hugging Face Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://huggingface.co/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
+      "id": "news-notices",
+      "name": "北航新闻网·通知公告",
+      "kind": "web_list",
       "tier": "T1",
-      "owner_entity_id": "hugging-face",
+      "owner_entity_id": "buaa",
+      "interval_minutes": 2880,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "开源"
-      ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "config": {
+        "url": "https://news.buaa.edu.cn/tzgg.htm",
+        "parseMode": "html",
+        "itemSelector": ".tlist li",
+        "linkSelector": "a[href*='info/']",
+        "titleSelector": "h3",
+        "allowUrlPrefixes": [
+          "https://news.buaa.edu.cn/info/"
+        ],
+        "fetchPublicContent": true,
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 15,
+          "initialBackfillMonths": 12
+        },
+        "maxPages": 3,
+        "nextPageSelector": "a:contains('下页')",
+        "detail": {
+          "publishedAtSelector": ".cont-tit p",
+          "maxFetches": 60,
+          "titleSelector": ".cont-tit h2",
+          "titleAuthoritative": true,
+          "bodySelector": ".v_news_content"
+        }
+      }
     },
     {
-      "id": "rss-microsoft-research",
-      "name": "Microsoft Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.microsoft.com/en-us/research/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
+      "id": "jiaowu",
+      "name": "北航教务部·学生专区",
+      "kind": "web_list",
       "tier": "T1",
-      "owner_entity_id": "microsoft",
+      "owner_entity_id": "buaa",
+      "interval_minutes": 2880,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "研究"
-      ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "config": {
+        "url": "https://jiaowu.buaa.edu.cn/tzgg/xszq.htm",
+        "parseMode": "html",
+        "itemSelector": ".n_bt li",
+        "linkSelector": "a[href*='info/']",
+        "titleSelector": "h5",
+        "allowUrlPrefixes": [
+          "https://jiaowu.buaa.edu.cn/info/"
+        ],
+        "fetchPublicContent": true,
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 15,
+          "initialBackfillMonths": 12
+        },
+        "maxPages": 3,
+        "nextPageSelector": "a:contains('下页')",
+        "publishedAtSelector": "i",
+        "detail": {
+          "maxFetches": 60,
+          "bodySelector": ".v_news_content"
+        }
+      }
     },
     {
-      "id": "rss-nvidia-blog",
-      "name": "NVIDIA Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://blogs.nvidia.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
+      "id": "research",
+      "name": "北航科研院·新闻资讯",
+      "kind": "web_list",
       "tier": "T1",
-      "owner_entity_id": "nvidia",
+      "owner_entity_id": "buaa",
+      "interval_minutes": 2880,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "config": {
+        "url": "https://bhkj.buaa.edu.cn/news.jsp?urltype=tree.TreeTempUrl&wbtreeid=1013",
+        "parseMode": "html",
+        "itemSelector": ".news_list li",
+        "linkSelector": "a[href*='info/']",
+        "titleSelector": "a[href*='info/']",
+        "allowUrlPrefixes": [
+          "https://bhkj.buaa.edu.cn/info/"
+        ],
+        "fetchPublicContent": true,
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 15,
+          "initialBackfillMonths": 12
+        },
+        "maxPages": 3,
+        "nextPageSelector": "a:contains('下页')",
+        "publishedAtSelector": "span",
+        "detail": {
+          "maxFetches": 60,
+          "bodySelector": ".v_news_content",
+          "titleSelector": ".news_contit",
+          "titleAuthoritative": true
+        }
+      }
     },
     {
-      "id": "rss-aws-ml",
-      "name": "AWS Machine Learning Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://aws.amazon.com/blogs/machine-learning/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
+      "id": "youth",
+      "name": "北航团委·综合新闻",
+      "kind": "web_list",
       "tier": "T1",
-      "owner_entity_id": null,
+      "owner_entity_id": "buaa",
+      "interval_minutes": 2880,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方",
-        "教程"
-      ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "enabled": true,
+      "config": {
+        "url": "https://youth.buaa.edu.cn/index/twdt/zhxw.htm",
+        "parseMode": "html",
+        "itemSelector": ".list_wz li",
+        "linkSelector": "a[href*='info/']",
+        "titleSelector": "h2",
+        "allowUrlPrefixes": [
+          "https://youth.buaa.edu.cn/info/"
+        ],
+        "fetchPublicContent": true,
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 15,
+          "initialBackfillMonths": 12
+        },
+        "maxPages": 3,
+        "nextPageSelector": "a:contains('下页')",
+        "publishedAtSelector": "span",
+        "detail": {
+          "maxFetches": 60,
+          "bodySelector": ".v_news_content"
+        }
+      }
     },
     {
-      "id": "rss-github-ai",
-      "name": "GitHub Blog · AI & ML",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://github.blog/ai-and-ml/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
+      "id": "alumni",
+      "name": "北航校友会·新闻",
+      "kind": "web_list",
       "tier": "T1",
-      "owner_entity_id": null,
+      "owner_entity_id": "buaa",
+      "interval_minutes": 2880,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-mistral",
-      "name": "Mistral AI",
-      "kind": "rss",
+      "syndicate_fulltext": false,
+      "enabled": true,
       "config": {
-        "feedUrl": "https://mistral.ai/news/rss",
+        "url": "https://xyh.buaa.edu.cn/xwtg/xyhxw.htm",
+        "parseMode": "html",
+        "itemSelector": ".nylist2 li",
+        "linkSelector": "a[href*='info/']",
+        "titleSelector": ".title a",
+        "allowUrlPrefixes": [
+          "https://xyh.buaa.edu.cn/info/"
+        ],
+        "fetchPublicContent": true,
+        "sortByPublishedAt": true,
         "_aihot": {
-          "initialBackfillLimit": 8
+          "initialBackfillLimit": 15,
+          "initialBackfillMonths": 12
+        },
+        "maxPages": 3,
+        "nextPageSelector": "a:contains('下页')",
+        "publishedAtSelector": ".time",
+        "detail": {
+          "maxFetches": 60,
+          "bodySelector": ".v_news_content"
         }
-      },
-      "tier": "T1",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-bair",
-      "name": "Berkeley AI Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://bair.berkeley.edu/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "tags": [
-        "研究"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-the-verge-ai",
-      "name": "The Verge · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-techcrunch-ai",
-      "name": "TechCrunch · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://techcrunch.com/category/artificial-intelligence/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-ars-technica-ai",
-      "name": "Ars Technica · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://arstechnica.com/ai/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-mit-tech-review-ai",
-      "name": "MIT Technology Review · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.technologyreview.com/topic/artificial-intelligence/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-the-decoder",
-      "name": "The Decoder",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://the-decoder.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-simon-willison",
-      "name": "Simon Willison",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://simonwillison.net/atom/everything/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "个人"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-import-ai",
-      "name": "Import AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://importai.substack.com/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "tags": [
-        "个人",
-        "周刊"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-latent-space",
-      "name": "Latent Space",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.latent.space/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "tags": [
-        "个人"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
+      }
     }
   ]
 }

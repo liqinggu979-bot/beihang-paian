@@ -16,6 +16,8 @@ const api = createServer((req, res) => {
   const url = new URL(req.url!, "http://api.local");
   apiCookies.push(req.headers.cookie);
   res.setHeader("Content-Type", "application/json");
+  if (url.pathname === "/api/site/checks") return res.end(JSON.stringify({ intervalMinutes: 2880, checkedAt: null, pending: 0, modelsEnabled: false, sources: [] }));
+  if (url.pathname === "/api/site/references") return res.end("[]");
   if (url.pathname === "/api/site/meta") {
     const respond = () => res.end(JSON.stringify({ changelogVersion: "2026-09-28T12:00" }));
     return metaAfterDeadline ? setTimeout(respond, deadline * 1000 - Date.now() + 50) : respond();

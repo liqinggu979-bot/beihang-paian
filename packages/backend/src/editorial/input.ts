@@ -78,7 +78,7 @@ const KIND_LABEL: Record<string, string> = {
 export function buildMaterial(a: AnalyzeInputArticle): string {
   // Conditions often occur at the end of an announcement. Use the existing body budget instead of
   // only its lead; beyond it, state the missing tail so it is not mistaken for complete evidence.
-  const body = (text: string) => text.length <= MAX_BODY_CHARS ? text : `${text.slice(0, MAX_BODY_CHARS)}\n【原文超过 ${MAX_BODY_CHARS} 字符，后文未提供】`;
+  const body = (text: string) => text.length <= MAX_BODY_CHARS ? text : `${text.slice(0, Math.floor(MAX_BODY_CHARS * 0.65))}\n【原文中段省略，不得推测省略信息】\n${text.slice(-Math.floor(MAX_BODY_CHARS * 0.35))}`;
   const lines: string[] = [];
   lines.push("<source>");
   lines.push(`名称：${a.source.name}`);

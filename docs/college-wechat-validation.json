@@ -1,0 +1,202 @@
+{
+  "verifiedDate": "2026-11-11",
+  "scope": "Identity samples; dates older than one year are not imported.",
+  "accounts": [
+    {
+      "requested": "北航无人系统研究院",
+      "account": {
+        "name": "北航无人系统研究院",
+        "biz": "MzkyOTczMTk3Ng==",
+        "bookId": "MP_WXS_3929731976",
+        "alias": "gh_17e9a8bc5a58"
+      },
+      "sample": {
+        "title": "北京航空航天大学无人系统研究院招收2026年硕士研究生一志愿复试录取工作方案",
+        "publishedAt": "2026-03-21T03:37:18+00:00",
+        "identityKey": "wechat:MzkyOTczMTk3Ng==:2247485790:1"
+      },
+      "bodyLength": 3842
+    },
+    {
+      "requested": "遇见北航Sasee",
+      "account": {
+        "name": "遇见北航Sasee",
+        "biz": "MzU0Mjk3MzYyNg==",
+        "bookId": "MP_WXS_3542973626",
+        "alias": "gh_b387c23b30f4"
+      },
+      "sample": {
+        "title": "【驭远七十载·遇见SASEE】选择自动化的十大理由！！！",
+        "publishedAt": "2024-04-15T11:15:44+00:00",
+        "identityKey": "wechat:MzU0Mjk3MzYyNg==:2247503174:1"
+      },
+      "bodyLength": 4348
+    },
+    {
+      "requested": "今日宇航",
+      "account": {
+        "name": "今日宇航",
+        "biz": "MzA5NzQwMjUzMg==",
+        "bookId": "MP_WXS_3097402532",
+        "alias": "gh_2521a7a3c67f"
+      },
+      "sample": {
+        "title": "喜报 | 我院荣获北京航空航天大学第六届“理纯杯”！",
+        "publishedAt": "2023-05-15T15:18:28+00:00",
+        "identityKey": "wechat:MzA5NzQwMjUzMg==:2650821802:1"
+      },
+      "bodyLength": 843
+    },
+    {
+      "requested": "北航人工智能研究院",
+      "account": {
+        "name": "北航人工智能学院",
+        "biz": "Mzg5NDUzODk1OQ==",
+        "bookId": "MP_WXS_3894538959",
+        "alias": "gh_0f4c66858eed"
+      },
+      "sample": {
+        "title": "喜报 | 人工智能研究院在北航2023年师生游泳比赛中斩获佳绩",
+        "publishedAt": "2023-06-05T08:12:06+00:00",
+        "identityKey": "wechat:Mzg5NDUzODk1OQ==:2247488180:1"
+      },
+      "bodyLength": 974
+    },
+    {
+      "requested": "北航仪器光电人",
+      "account": {
+        "name": "北航仪器光电人",
+        "biz": "MjM5MDIwOTEyOA==",
+        "bookId": "MP_WXS_2390209128",
+        "alias": "gh_63a72be388ec"
+      },
+      "sample": {
+        "title": "【仪光 • 资讯】 北航仪器光电学院研究生会「北航印象」明信片设计大赛获奖名单&转发中奖名单",
+        "publishedAt": "2016-01-05T00:10:52+00:00",
+        "identityKey": "wechat:MjM5MDIwOTEyOA==:401417198:1"
+      },
+      "bodyLength": 949
+    },
+    {
+      "requested": "北航计算机学院",
+      "account": {
+        "name": "北航计算机学院",
+        "biz": "MzIyMTE1OTkyNQ==",
+        "bookId": "MP_WXS_3221159925",
+        "alias": "gh_e2fc0ff4cd78"
+      },
+      "sample": {
+        "title": "与你同航 | “五福相约，航法同行 ” —— 北航计算机学院与中国政法大学法学院举办线上联谊活动",
+        "publishedAt": "2024-03-11T03:05:32+00:00",
+        "identityKey": "wechat:MzIyMTE1OTkyNQ==:2652622230:1"
+      },
+      "bodyLength": 1991
+    },
+    {
+      "requested": "北航电子信息工程学院",
+      "account": {
+        "name": "北航电子信息工程学院",
+        "biz": "MzIxNzM3MTE2MA==",
+        "bookId": "MP_WXS_3217371160",
+        "alias": "gh_4bb8ad7617b8"
+      },
+      "sample": {
+        "title": "六十载电子风华 | 北航电子信息工程学院建院系六十周年庆祝大会暨电子信息学科发展论坛隆重举行",
+        "publishedAt": "2018-10-28T15:51:24+00:00",
+        "identityKey": "wechat:MzIxNzM3MTE2MA==:2247489080:1"
+      },
+      "bodyLength": 1634
+    },
+    {
+      "requested": "北航机械之家",
+      "account": {
+        "name": "北航机械学院之家",
+        "biz": "MzE5MTM4MTE5OA==",
+        "bookId": "MP_WXS_3191381198",
+        "alias": "gh_68985886e4b9"
+      },
+      "sample": {
+        "title": "北航机械学院招收2026年硕士研究生复试录取工作方案",
+        "publishedAt": "2026-03-21T11:34:35+00:00",
+        "identityKey": "wechat:MzE5MTM4MTE5OA==:2247555443:1"
+      },
+      "bodyLength": 3603
+    }
+  ],
+  "registration": [
+    {
+      "id": "wechat-ai",
+      "name": "微信·北航人工智能学院",
+      "enabled": true,
+      "interval_minutes": 2880,
+      "last_fetch_at": "2026-11-11T07:37:33.04526+00:00",
+      "next_fetch_at": "2026-11-13T07:37:33.04526+00:00"
+    },
+    {
+      "id": "wechat-astronautics",
+      "name": "微信·今日宇航",
+      "enabled": true,
+      "interval_minutes": 2880,
+      "last_fetch_at": "2026-11-11T07:38:33.044326+00:00",
+      "next_fetch_at": "2026-11-13T07:38:33.044326+00:00"
+    },
+    {
+      "id": "wechat-automation",
+      "name": "微信·遇见北航Sasee",
+      "enabled": true,
+      "interval_minutes": 2880,
+      "last_fetch_at": "2026-11-11T07:39:26.396377+00:00",
+      "next_fetch_at": "2026-11-13T07:39:26.396377+00:00"
+    },
+    {
+      "id": "wechat-computer",
+      "name": "微信·北航计算机学院",
+      "enabled": true,
+      "interval_minutes": 2880,
+      "last_fetch_at": null,
+      "next_fetch_at": null
+    },
+    {
+      "id": "wechat-electronics",
+      "name": "微信·北航电子信息工程学院",
+      "enabled": true,
+      "interval_minutes": 2880,
+      "last_fetch_at": null,
+      "next_fetch_at": null
+    },
+    {
+      "id": "wechat-instruments",
+      "name": "微信·北航仪器光电人",
+      "enabled": true,
+      "interval_minutes": 2880,
+      "last_fetch_at": null,
+      "next_fetch_at": null
+    },
+    {
+      "id": "wechat-mechanical",
+      "name": "微信·北航机械学院之家",
+      "enabled": true,
+      "interval_minutes": 2880,
+      "last_fetch_at": null,
+      "next_fetch_at": null
+    },
+    {
+      "id": "wechat-unmanned",
+      "name": "微信·北航无人系统研究院",
+      "enabled": true,
+      "interval_minutes": 2880,
+      "last_fetch_at": null,
+      "next_fetch_at": null
+    }
+  ],
+  "checks": {
+    "backend": 681,
+    "web": 42,
+    "parsing": 12,
+    "typecheck": true,
+    "build": true,
+    "smoke": true,
+    "originalSevenSchedulesUnchanged": true
+  },
+  "latestSupplementStatus": "HTTP 401; public search remains enabled; initial collection is ongoing."
+}

@@ -1,3 +1,5 @@
+import { ReferenceList } from "../features/feed/CheckNotice";
+import type { ReferenceEntry } from "@aihot/contracts/site";
 import { useEffect } from "react";
 import { Link, redirect, useLoaderData, useNavigation, useSearchParams } from "react-router";
 import type { Route } from "./+types/all";
@@ -36,7 +38,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
   // Past the last page of what there is: the last page, with the same search and filters.
   if (data.total > 0 && data.page > data.pageCount) throw redirect(pageHref(url.searchParams, data.pageCount));
-  return cachedPage(60, { data });
+  const references = await loadOr404<ReferenceEntry[]>(`/api/site/references${q ? `?q=${encodeURIComponent(q)}` : ""}`, { signal: request.signal });
+  return cachedPage(60, { data, references });
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -65,7 +68,7 @@ function pageHref(params: URLSearchParams, page: number) {
 }
 
 export default function AllPage() {
-  const { data } = useLoaderData<typeof loader>();
+  const { data, references } = useLoaderData<typeof loader>();
   const [params] = useSearchParams();
   const navigation = useNavigation();
   const f = data.filters;
@@ -152,6 +155,7 @@ export default function AllPage() {
           <DayList items={data.items} todayCount={f.q ? null : data.todayCount} />
         )}
       </div>
+      <ReferenceList entries={references} />
       <Pagination page={data.page} pageCount={data.pageCount} href={(p) => pageHref(params, p)} />
       {data.page >= 50 && <p className="mt-4 text-center text-[12px] text-ink-4">最多提供 50 页，更早的内容请使用搜索或主题页。</p>}
     </div>
